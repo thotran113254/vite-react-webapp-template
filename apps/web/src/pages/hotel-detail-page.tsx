@@ -35,13 +35,13 @@ function RoomCard({ room }: { room: HotelRoom }) {
         )}
         <div className="mt-1 flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
           <Users className="h-3.5 w-3.5" />
-          <span>Up to {room.capacity ?? 2} guests</span>
+          <span>Tối đa {room.capacity ?? 2} khách</span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-2">
         <p className="text-lg font-bold text-teal-600">
           ${room.pricePerNight}
-          <span className="ml-1 text-xs font-normal text-[var(--muted-foreground)]">/night</span>
+          <span className="ml-1 text-xs font-normal text-[var(--muted-foreground)]">/đêm</span>
         </p>
         <Link
           to={`/hotels/rooms/${room.id}`}
@@ -80,7 +80,7 @@ export default function HotelDetailPage() {
   if (isError || !hotel) {
     return (
       <div className="py-20 text-center">
-        <p className="text-[var(--foreground)] font-medium">Hotel not found.</p>
+        <p className="text-[var(--foreground)] font-medium">Không tìm thấy khách sạn.</p>
         <Link to="/hotels" className="mt-2 inline-block text-sm text-teal-600 hover:underline">
           Back to hotels
         </Link>
@@ -94,9 +94,9 @@ export default function HotelDetailPage() {
     <div className="space-y-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-[var(--muted-foreground)]">
-        <Link to="/" className="hover:text-teal-600">Home</Link>
+        <Link to="/" className="hover:text-teal-600">Trang chủ</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link to="/hotels" className="hover:text-teal-600">Hotels</Link>
+        <Link to="/hotels" className="hover:text-teal-600">Khách sạn</Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-[var(--foreground)] font-medium line-clamp-1">{hotel.name}</span>
       </nav>
@@ -111,7 +111,7 @@ export default function HotelDetailPage() {
             <span>{hotel.location}</span>
           </div>
           <Badge variant="secondary" className="text-teal-700 bg-teal-50">
-            From ${hotel.priceFrom ?? 0}/night
+            From ${hotel.priceFrom ?? 0}/đêm
           </Badge>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function HotelDetailPage() {
           {/* Description */}
           {hotel.description && (
             <section>
-              <h2 className="mb-3 text-xl font-semibold text-[var(--foreground)]">About</h2>
+              <h2 className="mb-3 text-xl font-semibold text-[var(--foreground)]">Giới thiệu</h2>
               <p className="leading-relaxed text-[var(--muted-foreground)]">{hotel.description}</p>
             </section>
           )}
@@ -133,7 +133,7 @@ export default function HotelDetailPage() {
           {/* Highlights */}
           {highlights.length > 0 && (
             <section>
-              <h2 className="mb-4 text-xl font-semibold text-[var(--foreground)]">Highlights</h2>
+              <h2 className="mb-4 text-xl font-semibold text-[var(--foreground)]">Tiện nghi nổi bật</h2>
               <div className="flex flex-wrap gap-3">
                 {highlights.map((amenity, idx) => {
                   const Icon = HIGHLIGHT_ICONS[idx % HIGHLIGHT_ICONS.length] ?? MapPin;
@@ -153,9 +153,9 @@ export default function HotelDetailPage() {
 
           {/* Rooms */}
           <section>
-            <h2 className="mb-4 text-xl font-semibold text-[var(--foreground)]">Room Types</h2>
+            <h2 className="mb-4 text-xl font-semibold text-[var(--foreground)]">Loại phòng</h2>
             {roomsLoading ? (
-              <p className="text-sm text-[var(--muted-foreground)]">Loading rooms...</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Đang tải phòng...</p>
             ) : rooms && rooms.length > 0 ? (
               <div className="space-y-3">
                 {rooms.map((room) => (
@@ -163,7 +163,7 @@ export default function HotelDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[var(--muted-foreground)]">No rooms available.</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Không có phòng trống.</p>
             )}
           </section>
         </div>
@@ -173,19 +173,19 @@ export default function HotelDetailPage() {
           {/* Policies */}
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 font-semibold text-[var(--foreground)]">Policies</h3>
+              <h3 className="mb-3 font-semibold text-[var(--foreground)]">Chính sách</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Check-in</span>
-                  <span className="font-medium text-[var(--foreground)]">From 3:00 PM</span>
+                  <span className="text-[var(--muted-foreground)]">Nhận phòng</span>
+                  <span className="font-medium text-[var(--foreground)]">Từ 15:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Check-out</span>
-                  <span className="font-medium text-[var(--foreground)]">Until 12:00 PM</span>
+                  <span className="text-[var(--muted-foreground)]">Trả phòng</span>
+                  <span className="font-medium text-[var(--foreground)]">Trước 12:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--muted-foreground)]">Cancellation</span>
-                  <span className="font-medium text-[var(--foreground)]">Free up to 48h</span>
+                  <span className="text-[var(--muted-foreground)]">Hủy phòng</span>
+                  <span className="font-medium text-[var(--foreground)]">Miễn phí trước 48h</span>
                 </div>
               </div>
             </CardContent>
@@ -197,15 +197,15 @@ export default function HotelDetailPage() {
               <div className="mb-3 flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-teal-600" />
                 <h3 className="font-semibold text-teal-900">
-                  Experience {hotel.location.split(",")[0]}
+                  Khám phá {hotel.location.split(",")[0]}
                 </h3>
               </div>
               <p className="mb-4 text-sm text-teal-800">
-                Talk with our AI assistant to get insider recommendations for your trip.
+                Trò chuyện với trợ lý AI để nhận gợi ý cho chuyến đi của bạn.
               </p>
               <Link to="/chat">
                 <Button className="w-full bg-teal-600 hover:bg-teal-700">
-                  Plan my trip
+                  Lên kế hoạch chuyến đi
                 </Button>
               </Link>
             </CardContent>

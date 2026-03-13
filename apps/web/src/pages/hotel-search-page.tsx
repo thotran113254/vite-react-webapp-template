@@ -40,17 +40,17 @@ export default function HotelSearchPage() {
 
   const items = data?.items ?? [];
   const total = data?.meta?.total ?? 0;
-  const locationLabel = filters.location ? ` in ${filters.location}` : "";
+  const locationLabel = filters.location ? ` tại ${filters.location}` : "";
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">
-          {total} hotel{total !== 1 ? "s" : ""} found{locationLabel}
+          Tìm thấy {total} khách sạn{locationLabel}
         </h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-          Sorted by relevance and price for your dates
+          Sắp xếp theo mức độ phù hợp và giá
         </p>
       </div>
 
@@ -59,18 +59,18 @@ export default function HotelSearchPage() {
 
       {/* Error state */}
       {isError && (
-        <p className="text-sm text-red-600">Failed to load hotels. Please try again.</p>
+        <p className="text-sm text-red-600">Không thể tải khách sạn. Vui lòng thử lại.</p>
       )}
 
       {/* Empty state */}
       {!isError && items.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg font-medium text-[var(--foreground)]">No hotels found</p>
+          <p className="text-lg font-medium text-[var(--foreground)]">Không tìm thấy khách sạn</p>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Try adjusting your filters to see more results.
+            Thử điều chỉnh bộ lọc để xem thêm kết quả.
           </p>
           <Button className="mt-4 bg-teal-600 hover:bg-teal-700" onClick={() => handleFiltersChange({})}>
-            Clear filters
+            Xóa bộ lọc
           </Button>
         </div>
       )}
@@ -94,12 +94,12 @@ export default function HotelSearchPage() {
         />
       )}
 
-      {/* Show Map floating button */}
+      {/* Xem bản đồ floating button */}
       {items.length > 0 && (
         <div className="flex justify-center pb-4">
           <Button className="rounded-full bg-teal-600 px-6 shadow-lg hover:bg-teal-700">
             <MapPin className="mr-2 h-4 w-4" />
-            Show Map
+            Xem bản đồ
           </Button>
         </div>
       )}

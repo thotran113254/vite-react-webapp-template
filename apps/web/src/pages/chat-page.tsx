@@ -91,29 +91,26 @@ export default function ChatPage() {
   }, [allMessages.length]);
 
   return (
-    <div className="flex h-screen flex-col bg-gray-50">
-      {/* Header */}
-      <header className="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-600">
-          <Bot size={20} className="text-white" />
+    <div className="flex h-full flex-col -m-6">
+      {/* Chat header */}
+      <div className="flex items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4 py-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-600">
+          <Bot size={16} className="text-white" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-900">AI Assistant</p>
-          <span className="inline-flex items-center gap-1 text-xs text-teal-600">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Trợ lý AI</p>
+          <span className="inline-flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400">
             <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-            Trực tuyến
+            Online
           </span>
         </div>
-        <div className="ml-auto text-xs text-gray-400">
-          {user?.name ?? user?.email ?? ""}
-        </div>
-      </header>
+      </div>
 
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="mx-auto max-w-2xl space-y-4">
           {allMessages.length === 0 && (
-            <div className="py-16 text-center text-sm text-gray-400">
+            <div className="py-16 text-center text-sm text-[var(--muted-foreground)]">
               Bắt đầu cuộc trò chuyện về khách sạn và du lịch
             </div>
           )}
@@ -126,7 +123,7 @@ export default function ChatPage() {
             />
           ))}
           {mutation.isPending && (
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
               <div className="flex gap-1">
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:0ms]" />
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:150ms]" />
@@ -140,11 +137,11 @@ export default function ChatPage() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-gray-100 bg-white px-4 pb-4 pt-3">
+      <div className="border-t border-[var(--border)] bg-[var(--card)] px-4 pb-4 pt-3">
         <div className="mx-auto max-w-2xl space-y-3">
           <ChatSuggestionChips onSelect={handleSend} />
           <ChatInput onSend={handleSend} disabled={mutation.isPending || !session} />
-          <p className="text-center text-[10px] text-gray-400">
+          <p className="text-center text-[10px] text-[var(--muted-foreground)]">
             AI có thể mắc sai sót. Vui lòng xác minh thông tin quan trọng trước khi đặt phòng.
           </p>
         </div>

@@ -92,7 +92,7 @@ export function ResourceCreateModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Resource</DialogTitle>
+          <DialogTitle>Tạo tài nguyên</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit}>
           <ResourceForm
@@ -115,7 +115,7 @@ export function ResourceCreateModal({
               Cancel
             </Button>
             <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? "Đang tạo..." : "Tạo mới"}
             </Button>
           </DialogFooter>
         </form>

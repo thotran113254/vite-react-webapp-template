@@ -17,7 +17,7 @@ export function Spinner({ className, size = "md" }: SpinnerProps) {
         className
       )}
       role="status"
-      aria-label="Loading"
+      aria-label="Đang tải"
     />
   );
 }

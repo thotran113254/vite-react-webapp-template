@@ -44,17 +44,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hydrate user from token on mount
+  // Hydrate user from token on mount.
+  // The apiClient interceptor handles token refresh transparently on 401,
+  // so this will succeed even if the access token has expired (as long as
+  // the refresh token is still valid).
   useEffect(() => {
     const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (!token) {
+    if (!token && !localStorage.getItem(REFRESH_TOKEN_KEY)) {
       setIsLoading(false);
       return;
     }
     apiClient
       .get<{ data: User }>("/auth/me")
       .then((res) => setUser(res.data.data))
-      .catch(() => clearTokens())
+      .catch((err: unknown) => {
+        // Only clear tokens on 401 (auth failure). Network errors should not
+        // wipe valid tokens — the user can retry on reconnect.
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 401) {
+          clearTokens();
+        }
+      })
       .finally(() => setIsLoading(false));
   }, []);
 

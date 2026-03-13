@@ -33,6 +33,16 @@ let pendingRequests: Array<{
   reject: (err: unknown) => void;
 }> = [];
 
+// Auth credential endpoints that should NOT trigger token refresh on 401.
+// Protected auth endpoints like /auth/me, /auth/profile SHOULD trigger refresh.
+const NO_REFRESH_PATHS = ["/auth/login", "/auth/register", "/auth/refresh", "/auth/logout"];
+
+function isCredentialEndpoint(url?: string): boolean {
+  if (!url) return false;
+  const pathname = url.split("?")[0];
+  return NO_REFRESH_PATHS.some((p) => pathname!.endsWith(p));
+}
+
 function clearAuth() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -46,13 +56,16 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Only attempt refresh for 401 errors on non-auth endpoints
+    // Only attempt refresh for 401 errors on non-credential endpoints
     if (
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      originalRequest.url?.includes("/auth/")
+      isCredentialEndpoint(originalRequest.url)
     ) {
-      if (error.response?.status === 401) clearAuth();
+      // Only clear auth for non-credential 401s (don't wipe tokens on wrong password)
+      if (error.response?.status === 401 && !isCredentialEndpoint(originalRequest.url)) {
+        clearAuth();
+      }
       return Promise.reject(error);
     }
 
@@ -84,6 +97,9 @@ apiClient.interceptors.response.use(
         { refreshToken },
       );
       const { accessToken, refreshToken: newRefresh } = res.data.data;
+      if (!accessToken || !newRefresh) {
+        throw new Error("Malformed refresh response");
+      }
       localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
       localStorage.setItem(REFRESH_TOKEN_KEY, newRefresh);
 

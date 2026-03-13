@@ -63,8 +63,8 @@ export function AppLayout() {
               variant="ghost"
               size="icon"
               onClick={logout}
-              aria-label="Sign out"
-              title="Sign out"
+              aria-label="Đăng xuất"
+              title="Đăng xuất"
             >
               <LogOut className="h-4 w-4" />
             </Button>

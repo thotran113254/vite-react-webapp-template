@@ -2,6 +2,7 @@ import { useRef, useCallback, type ChangeEvent } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 
 export interface HotelFilters {
   search?: string;
@@ -16,28 +17,26 @@ interface HotelFiltersProps {
 }
 
 const LOCATION_OPTIONS = [
-  { value: "", label: "All Locations" },
+  { value: "", label: "Tất cả vị trí" },
   { value: "Kyoto, Japan", label: "Kyoto, Japan" },
   { value: "Da Nang, Vietnam", label: "Da Nang, Vietnam" },
   { value: "Nha Trang, Vietnam", label: "Nha Trang, Vietnam" },
 ];
 
 const STAR_OPTIONS = [
-  { value: "", label: "Any Stars" },
-  { value: "3", label: "3+ Stars" },
-  { value: "4", label: "4+ Stars" },
-  { value: "5", label: "5 Stars" },
+  { value: "", label: "Tất cả sao" },
+  { value: "3", label: "3+ sao" },
+  { value: "4", label: "4+ sao" },
+  { value: "5", label: "5 sao" },
 ];
 
 const PRICE_OPTIONS = [
-  { value: "", label: "Any Price" },
-  { value: "200", label: "Under $200" },
+  { value: "", label: "Tất cả giá" },
+  { value: "200", label: "Dưới $200" },
   { value: "400", label: "$200 - $400" },
   { value: "9999", label: "$400+" },
 ];
 
-const SELECT_CLASS =
-  "h-10 rounded-full border border-[var(--input)] bg-[var(--background)] px-4 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors hover:border-teal-400";
 
 /** Hotel filter row: search, location, star rating, price range. */
 export function HotelFiltersBar({ filters, onChange }: HotelFiltersProps) {
@@ -78,30 +77,16 @@ export function HotelFiltersBar({ filters, onChange }: HotelFiltersProps) {
       <div className="relative flex-1 min-w-[220px]">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
         <Input
-          placeholder="Search hotels..."
+          placeholder="Tìm khách sạn..."
           defaultValue={filters.search}
           onChange={handleSearchChange}
           className="rounded-full pl-9"
         />
       </div>
 
-      <select value={filters.location ?? ""} onChange={handleLocation} className={SELECT_CLASS}>
-        {LOCATION_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-
-      <select value={filters.minStars?.toString() ?? ""} onChange={handleStars} className={SELECT_CLASS}>
-        {STAR_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-
-      <select value={filters.maxPrice?.toString() ?? ""} onChange={handlePrice} className={SELECT_CLASS}>
-        {PRICE_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
+      <Select options={LOCATION_OPTIONS} value={filters.location ?? ""} onChange={handleLocation} />
+      <Select options={STAR_OPTIONS} value={filters.minStars?.toString() ?? ""} onChange={handleStars} />
+      <Select options={PRICE_OPTIONS} value={filters.maxPrice?.toString() ?? ""} onChange={handlePrice} />
 
       {hasFilters && (
         <Button

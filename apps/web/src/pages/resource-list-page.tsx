@@ -19,13 +19,13 @@ import type { Resource, PaginatedResponse } from "@app/shared";
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <p className="text-lg font-medium text-[var(--foreground)]">No resources yet</p>
+      <p className="text-lg font-medium text-[var(--foreground)]">Chưa có tài nguyên</p>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-        Create your first resource to get started.
+        Tạo tài nguyên đầu tiên để bắt đầu.
       </p>
       <Button className="mt-4" onClick={onCreate}>
         <Plus className="mr-2 h-4 w-4" />
-        Create Resource
+        Tạo tài nguyên
       </Button>
     </div>
   );
@@ -91,20 +91,20 @@ export default function ResourceListPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">Resources</h1>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Tài nguyên</h1>
           <p className="text-sm text-[var(--muted-foreground)]">
-            {total} resource{total !== 1 ? "s" : ""} found
+            Tìm thấy {total} tài nguyên
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Resource
+          Tạo tài nguyên
         </Button>
       </div>
 
       <ResourceFilters filters={filters} onChange={handleFiltersChange} />
 
-      {isError && <p className="text-sm text-red-600">Failed to load resources.</p>}
+      {isError && <p className="text-sm text-red-600">Không thể tải tài nguyên.</p>}
 
       {items.length === 0 ? (
         <EmptyState onCreate={() => setCreateOpen(true)} />
@@ -112,11 +112,11 @@ export default function ResourceListPage() {
         <Table>
           <THead>
             <TableHeaderRow>
-              <TH>Name</TH>
-              <TH>Category</TH>
-              <TH>Status</TH>
-              <TH className="hidden md:table-cell">Description</TH>
-              <TH className="text-right">Actions</TH>
+              <TH>Tên</TH>
+              <TH>Danh mục</TH>
+              <TH>Trạng thái</TH>
+              <TH className="hidden md:table-cell">Mô tả</TH>
+              <TH className="text-right">Thao tác</TH>
             </TableHeaderRow>
           </THead>
           <TBody>
@@ -139,7 +139,7 @@ export default function ResourceListPage() {
                   >
                     {item.status === "inactive" && (
                       <Button
-                        size="sm" variant="outline" title="Activate"
+                        size="sm" variant="outline" title="Kích hoạt"
                         disabled={actionMutation.isPending}
                         onClick={() => actionMutation.mutate({ id: item.id, action: "activate" })}
                       >
@@ -148,7 +148,7 @@ export default function ResourceListPage() {
                     )}
                     {item.status === "active" && (
                       <Button
-                        size="sm" variant="outline" title="Deactivate"
+                        size="sm" variant="outline" title="Vô hiệu hóa"
                         disabled={actionMutation.isPending}
                         onClick={() => actionMutation.mutate({ id: item.id, action: "deactivate" })}
                       >
@@ -156,13 +156,13 @@ export default function ResourceListPage() {
                       </Button>
                     )}
                     <Button
-                      size="sm" variant="ghost" title="Edit"
+                      size="sm" variant="ghost" title="Sửa"
                       onClick={() => { setEditingResource(item); setEditOpen(true); }}
                     >
                       <Pencil className="h-3 w-3" />
                     </Button>
                     <Button
-                      size="sm" variant="ghost" title="Delete"
+                      size="sm" variant="ghost" title="Xóa"
                       className="text-[var(--destructive)] hover:text-[var(--destructive)]"
                       onClick={() => deleteConfirm.requestConfirm(item)}
                     >
@@ -190,9 +190,9 @@ export default function ResourceListPage() {
       <ConfirmDialog
         open={deleteConfirm.open}
         onOpenChange={(v) => { if (!v) deleteConfirm.cancel(); }}
-        title="Delete Resource"
-        description={`Delete "${deleteConfirm.item?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title="Xóa tài nguyên"
+        description={`Delete "${deleteConfirm.item?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa"
         variant="destructive"
         isLoading={deleteMutation.isPending}
         onConfirm={() => deleteConfirm.confirm((item) => deleteMutation.mutate(item.id))}

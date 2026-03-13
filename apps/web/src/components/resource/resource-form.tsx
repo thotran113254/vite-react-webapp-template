@@ -21,26 +21,26 @@ interface ResourceFormProps {
 export function ResourceForm({ register, errors, disabled }: ResourceFormProps) {
   return (
     <div className="space-y-4">
-      <FormField label="Name" required error={errors.name?.message} htmlFor="name">
+      <FormField label="Tên" required error={errors.name?.message} htmlFor="name">
         <Input
           id="name"
-          placeholder="my-resource"
+          placeholder="tên-tài-nguyên"
           disabled={disabled}
           {...register("name")}
         />
       </FormField>
 
-      <FormField label="Description" error={errors.description?.message} htmlFor="description">
+      <FormField label="Mô tả" error={errors.description?.message} htmlFor="description">
         <Textarea
           id="description"
-          placeholder="A brief description..."
+          placeholder="Mô tả ngắn gọn..."
           disabled={disabled}
           rows={3}
           {...register("description")}
         />
       </FormField>
 
-      <FormField label="Category" error={errors.category?.message} htmlFor="category">
+      <FormField label="Danh mục" error={errors.category?.message} htmlFor="category">
         <Select
           id="category"
           options={CATEGORY_OPTIONS}

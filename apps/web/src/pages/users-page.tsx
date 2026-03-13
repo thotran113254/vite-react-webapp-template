@@ -42,27 +42,27 @@ export default function UsersPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">Users</h1>
+        <h1 className="text-2xl font-bold text-[var(--foreground)]">Người dùng</h1>
         <p className="text-sm text-[var(--muted-foreground)]">
-          {total} user{total !== 1 ? "s" : ""} registered
+          {total} người dùng đã đăng ký
         </p>
       </div>
 
       {isError && (
-        <p className="text-sm text-red-600">Failed to load users. Admin access required.</p>
+        <p className="text-sm text-red-600">Không thể tải người dùng. Cần quyền quản trị.</p>
       )}
 
       {users.length === 0 ? (
-        <p className="py-8 text-center text-sm text-[var(--muted-foreground)]">No users found.</p>
+        <p className="py-8 text-center text-sm text-[var(--muted-foreground)]">Không tìm thấy người dùng.</p>
       ) : (
         <Table>
           <THead>
             <TableHeaderRow>
-              <TH>Name</TH>
+              <TH>Tên</TH>
               <TH>Email</TH>
-              <TH>Role</TH>
-              <TH className="hidden sm:table-cell">Joined</TH>
-              <TH className="text-right">Actions</TH>
+              <TH>Vai trò</TH>
+              <TH className="hidden sm:table-cell">Ngày tham gia</TH>
+              <TH className="text-right">Thao tác</TH>
             </TableHeaderRow>
           </THead>
           <TBody>
@@ -73,7 +73,7 @@ export default function UsersPage() {
                   <TD className="font-medium text-[var(--foreground)]">
                     {user.name}
                     {isSelf && (
-                      <span className="ml-2 text-xs text-[var(--muted-foreground)]">(you)</span>
+                      <span className="ml-2 text-xs text-[var(--muted-foreground)]">(bạn)</span>
                     )}
                   </TD>
                   <TD className="text-[var(--muted-foreground)]">{user.email}</TD>
@@ -90,7 +90,7 @@ export default function UsersPage() {
                       variant="destructive"
                       size="sm"
                       disabled={isSelf || deleteMutation.isPending}
-                      title={isSelf ? "Cannot delete your own account" : `Delete ${user.name}`}
+                      title={isSelf ? "Không thể xóa tài khoản của bạn" : `Delete ${user.name}`}
                       onClick={() => deleteConfirm.requestConfirm(user)}
                     >
                       <Trash2 className="h-3 w-3" />
@@ -115,9 +115,9 @@ export default function UsersPage() {
       <ConfirmDialog
         open={deleteConfirm.open}
         onOpenChange={(v) => { if (!v) deleteConfirm.cancel(); }}
-        title="Delete User"
-        description={`Delete user "${deleteConfirm.item?.name}" (${deleteConfirm.item?.email})? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title="Xóa người dùng"
+        description={`Xóa người dùng "${deleteConfirm.item?.name}" (${deleteConfirm.item?.email})? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa"
         variant="destructive"
         isLoading={deleteMutation.isPending}
         onConfirm={() => deleteConfirm.confirm((user) => deleteMutation.mutate(user.id))}

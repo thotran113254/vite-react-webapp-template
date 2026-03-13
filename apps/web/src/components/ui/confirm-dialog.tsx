@@ -26,8 +26,8 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel = "Xác nhận",
+  cancelLabel = "Hủy",
   variant = "default",
   onConfirm,
   isLoading = false,
@@ -52,7 +52,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : confirmLabel}
+            {isLoading ? "Đang xử lý..." : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

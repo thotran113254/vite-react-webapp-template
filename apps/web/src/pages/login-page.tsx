@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { loginSchema } from "@app/shared";
 import { getErrorMessage } from "@/lib/error-utils";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import type { LoginInput } from "@app/shared";
 
@@ -45,16 +46,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-teal-50 to-white px-4">
-      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-teal-50 to-white dark:from-gray-900 dark:to-gray-950 px-4">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-lg">
         {/* Logo & header */}
         <div className="mb-6 flex flex-col items-center gap-3">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-600">
             <Compass size={28} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">AI Travel Assistant</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">AI Travel Assistant</h1>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Đăng nhập để bắt đầu hành trình của bạn
             </p>
           </div>
@@ -62,20 +66,20 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           {serverError && (
-            <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">
+            <p className="rounded-xl bg-red-50 dark:bg-red-900/20 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
               {serverError}
             </p>
           )}
 
           {/* Email field */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="text-sm font-medium text-[var(--foreground)]">
               Email
             </label>
             <div className="relative">
               <Mail
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
               />
               <input
                 id="email"
@@ -85,10 +89,10 @@ export default function LoginPage() {
                 disabled={isSubmitting}
                 {...register("email")}
                 className={cn(
-                  "h-11 w-full rounded-xl border bg-gray-50 py-2 pl-10 pr-4 text-sm",
-                  "placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500",
+                  "h-11 w-full rounded-xl border bg-gray-50 dark:bg-gray-800 py-2 pl-10 pr-4 text-sm text-[var(--foreground)]",
+                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-teal-500",
                   "disabled:opacity-50",
-                  errors.email ? "border-red-400" : "border-gray-200",
+                  errors.email ? "border-red-400" : "border-gray-200 dark:border-gray-700",
                 )}
               />
             </div>
@@ -99,13 +103,13 @@ export default function LoginPage() {
 
           {/* Password field */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="text-sm font-medium text-[var(--foreground)]">
               Mật khẩu
             </label>
             <div className="relative">
               <Lock
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
               />
               <input
                 id="password"
@@ -115,17 +119,17 @@ export default function LoginPage() {
                 disabled={isSubmitting}
                 {...register("password")}
                 className={cn(
-                  "h-11 w-full rounded-xl border bg-gray-50 py-2 pl-10 pr-10 text-sm",
-                  "placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500",
+                  "h-11 w-full rounded-xl border bg-gray-50 dark:bg-gray-800 py-2 pl-10 pr-10 text-sm text-[var(--foreground)]",
+                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-teal-500",
                   "disabled:opacity-50",
-                  errors.password ? "border-red-400" : "border-gray-200",
+                  errors.password ? "border-red-400" : "border-gray-200 dark:border-gray-700",
                 )}
               />
               <button
                 type="button"
                 tabIndex={-1}
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -137,12 +141,12 @@ export default function LoginPage() {
           </div>
 
           {/* Remember me */}
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--muted-foreground)]">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 accent-teal-600"
+              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 accent-teal-600"
             />
             Ghi nhớ đăng nhập
           </label>
@@ -159,12 +163,12 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="mt-6 space-y-2 text-center">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-            Secure Enterprise Connection
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+            Kết nối bảo mật doanh nghiệp
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[var(--muted-foreground)]">
             Chưa có tài khoản?{" "}
-            <span className="font-medium text-teal-600">Liên hệ Leader</span>
+            <span className="font-medium text-teal-600 dark:text-teal-400">Liên hệ Leader</span>
           </p>
         </div>
       </div>

@@ -31,7 +31,7 @@ function ProfileInfoCard() {
     mutationFn: (data: UpdateProfileInput) =>
       apiClient.patch("/auth/profile", data),
     onSuccess: () => {
-      setSuccessMsg("Profile updated. Refresh to see changes.");
+      setSuccessMsg("Đã cập nhật hồ sơ. Làm mới trang để thấy thay đổi.");
       setErrorMsg("");
     },
     onError: (err) => {
@@ -45,14 +45,14 @@ function ProfileInfoCard() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <UserIcon className="h-5 w-5 text-[var(--primary)]" />
-          <CardTitle className="text-lg">Profile Information</CardTitle>
+          <CardTitle className="text-lg">Thông tin hồ sơ</CardTitle>
         </div>
-        <CardDescription>Update your name and email address</CardDescription>
+        <CardDescription>Cập nhật tên và email của bạn</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
-          <FormField label="Name" error={errors.name?.message} required>
-            <Input {...register("name")} placeholder="Your name" />
+          <FormField label="Họ tên" error={errors.name?.message} required>
+            <Input {...register("name")} placeholder="Họ tên của bạn" />
           </FormField>
           <FormField label="Email" error={errors.email?.message} required>
             <Input {...register("email")} type="email" placeholder="you@example.com" />
@@ -60,7 +60,7 @@ function ProfileInfoCard() {
           {successMsg && <p className="text-sm text-green-600">{successMsg}</p>}
           {errorMsg && <p className="text-sm text-[var(--destructive)]">{errorMsg}</p>}
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Saving..." : "Save Changes"}
+            {mutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </form>
       </CardContent>
@@ -80,7 +80,7 @@ function ChangePasswordCard() {
     mutationFn: (data: ChangePasswordInput) =>
       apiClient.post("/auth/change-password", data),
     onSuccess: () => {
-      setSuccessMsg("Password changed successfully.");
+      setSuccessMsg("Đã đổi mật khẩu thành công.");
       setErrorMsg("");
       reset();
     },
@@ -95,22 +95,22 @@ function ChangePasswordCard() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Lock className="h-5 w-5 text-[var(--primary)]" />
-          <CardTitle className="text-lg">Change Password</CardTitle>
+          <CardTitle className="text-lg">Đổi mật khẩu</CardTitle>
         </div>
-        <CardDescription>Update your account password</CardDescription>
+        <CardDescription>Cập nhật mật khẩu tài khoản</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
-          <FormField label="Current Password" error={errors.currentPassword?.message} required>
-            <Input {...register("currentPassword")} type="password" placeholder="Current password" />
+          <FormField label="Mật khẩu hiện tại" error={errors.currentPassword?.message} required>
+            <Input {...register("currentPassword")} type="password" placeholder="Mật khẩu hiện tại" />
           </FormField>
-          <FormField label="New Password" error={errors.newPassword?.message} required>
-            <Input {...register("newPassword")} type="password" placeholder="New password (min 6 chars)" />
+          <FormField label="Mật khẩu mới" error={errors.newPassword?.message} required>
+            <Input {...register("newPassword")} type="password" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" />
           </FormField>
           {successMsg && <p className="text-sm text-green-600">{successMsg}</p>}
           {errorMsg && <p className="text-sm text-[var(--destructive)]">{errorMsg}</p>}
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Changing..." : "Change Password"}
+            {mutation.isPending ? "Đang đổi..." : "Đổi mật khẩu"}
           </Button>
         </form>
       </CardContent>
@@ -124,9 +124,9 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">Profile Settings</h1>
+        <h1 className="text-2xl font-bold text-[var(--foreground)]">Cài đặt hồ sơ</h1>
         <p className="text-sm text-[var(--muted-foreground)]">
-          Manage your account as {user?.email}
+          Quản lý tài khoản {user?.email}
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-2">

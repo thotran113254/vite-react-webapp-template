@@ -9,6 +9,8 @@ import {
   UserCircle,
   LayoutDashboard,
   Compass,
+  Map,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,16 +24,16 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/chat", label: "Chat AI", icon: MessageSquare },
-  { to: "/hotels", label: "Hotels", icon: Hotel },
-  { to: "/pricing", label: "Pricing Tool", icon: Calculator },
-  { to: "/profile", label: "Profile", icon: UserCircle },
+  { to: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+  { to: "/chat", label: "Trợ lý AI", icon: MessageSquare },
+  { to: "/hotels", label: "Khách sạn", icon: Hotel },
+  { to: "/pricing", label: "Tính giá", icon: Calculator },
+  { to: "/profile", label: "Hồ sơ", icon: UserCircle, section: "Cài đặt" },
   // Admin section
-  { to: "/pricing/admin", label: "Pricing (Admin)", icon: Calculator, adminOnly: true, section: "Admin" },
-  { to: "/knowledge-base", label: "Knowledge Base", icon: BookOpen, adminOnly: true },
-  { to: "/products", label: "Products & Prices", icon: Package, adminOnly: true },
-  { to: "/users", label: "Users", icon: Users, adminOnly: true },
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
+  { to: "/pricing/admin", label: "Tính giá (QTV)", icon: Calculator, adminOnly: true, section: "Quản trị" },
+  { to: "/knowledge-base", label: "Cơ sở tri thức", icon: BookOpen, adminOnly: true },
+  { to: "/products", label: "Sản phẩm & Giá", icon: Package, adminOnly: true },
+  { to: "/users", label: "Người dùng", icon: Users, adminOnly: true },
 ];
 
 /** Sidebar navigation with role-based link visibility. */
@@ -75,8 +77,8 @@ export function Sidebar() {
                   cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-teal-50 text-teal-700"
-                      : "text-[var(--muted-foreground)] hover:bg-teal-50/50 hover:text-teal-700",
+                      ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
+                      : "text-[var(--muted-foreground)] hover:bg-teal-50/50 hover:text-teal-700 dark:hover:bg-teal-900/20 dark:hover:text-teal-300",
                   )
                 }
               >

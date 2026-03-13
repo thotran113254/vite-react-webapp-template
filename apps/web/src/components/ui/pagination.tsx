@@ -36,7 +36,7 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm text-[var(--muted-foreground)]">
-        Page {page} of {totalPages} ({total} total)
+        Trang {page} / {totalPages} ({total} kết quả)
       </p>
       <div className="flex items-center gap-1">
         <Button
@@ -44,7 +44,7 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
           size="sm"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Previous page"
+          aria-label="Trang trước"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -72,7 +72,7 @@ export function Pagination({ page, totalPages, total, onPageChange }: Pagination
           size="sm"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Next page"
+          aria-label="Trang sau"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>

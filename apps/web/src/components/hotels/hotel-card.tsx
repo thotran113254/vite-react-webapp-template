@@ -44,7 +44,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
         />
         <button
           className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-gray-600 backdrop-blur-sm transition-colors hover:bg-white hover:text-red-500"
-          aria-label="Save hotel"
+          aria-label="Lưu khách sạn"
         >
           <Heart className="h-4 w-4" />
         </button>
@@ -63,7 +63,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
         {/* Price */}
         <p className="mt-2 text-lg font-bold text-teal-600">
           ${hotel.priceFrom ?? 0}
-          <span className="ml-1 text-sm font-normal text-[var(--muted-foreground)]">/ night</span>
+          <span className="ml-1 text-sm font-normal text-[var(--muted-foreground)]">/ đêm</span>
         </p>
 
         {/* Amenity tags */}

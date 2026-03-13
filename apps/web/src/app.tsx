@@ -21,6 +21,7 @@ const PricingSalePage = lazy(() => import("@/pages/pricing-sale-page"));
 const PricingAdminPage = lazy(() => import("@/pages/pricing-admin-page"));
 const KnowledgeBasePage = lazy(() => import("@/pages/knowledge-base-page"));
 const ProductManagementPage = lazy(() => import("@/pages/product-management-page"));
+const ItineraryDetailPage = lazy(() => import("@/pages/itinerary-detail-page"));
 
 function PageLoader() {
   return (
@@ -47,12 +48,10 @@ export function App() {
 
           {/* Protected routes — guarded by ProtectedRoute */}
           <Route element={<ProtectedRoute />}>
-            {/* Full-page routes (no AppLayout chrome) */}
-            <Route path="/chat" element={<ChatPage />} />
-
             <Route element={<AppLayout />}>
-              <Route index element={<Navigate to="/chat" replace />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/chat" element={<ChatPage />} />
               <Route path="/hotels" element={<HotelSearchPage />} />
               <Route path="/hotels/:slug" element={<HotelDetailPage />} />
               <Route path="/pricing" element={<PricingSalePage />} />
@@ -63,11 +62,12 @@ export function App() {
               <Route path="/resources/:id" element={<ResourceDetailPage />} />
               <Route path="/users" element={<UsersPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/itinerary/:id" element={<ItineraryDetailPage />} />
             </Route>
           </Route>
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/chat" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
       </ErrorBoundary>

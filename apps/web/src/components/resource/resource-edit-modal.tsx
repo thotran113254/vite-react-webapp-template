@@ -102,7 +102,7 @@ export function ResourceEditModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Resource</DialogTitle>
+          <DialogTitle>Sửa tài nguyên</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit}>
           <ResourceForm
@@ -125,7 +125,7 @@ export function ResourceEditModal({
               Cancel
             </Button>
             <Button type="submit" disabled={updateMutation.isPending || !resource}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </form>

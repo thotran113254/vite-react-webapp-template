@@ -77,7 +77,7 @@ export default function ResourceDetailPage() {
 
   if (isLoading) return <PageSpinner />;
   if (isError || !resource)
-    return <p className="text-red-600">Resource not found or failed to load.</p>;
+    return <p className="text-red-600">Không tìm thấy tài nguyên hoặc tải thất bại.</p>;
 
   const metadataEntries = Object.entries(resource.metadata ?? {});
 
@@ -109,10 +109,10 @@ export default function ResourceDetailPage() {
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2">
         {[
-          { action: "activate", icon: Play, label: "Activate", disabled: resource.status === "active" },
-          { action: "deactivate", icon: Square, label: "Deactivate", disabled: resource.status === "inactive" },
-          { action: "archive", icon: Archive, label: "Archive" },
-          { action: "restore", icon: RotateCw, label: "Restore" },
+          { action: "activate", icon: Play, label: "Kích hoạt", disabled: resource.status === "active" },
+          { action: "deactivate", icon: Square, label: "Vô hiệu hóa", disabled: resource.status === "inactive" },
+          { action: "archive", icon: Archive, label: "Lưu trữ" },
+          { action: "restore", icon: RotateCw, label: "Khôi phục" },
         ].map(({ action, icon: Icon, label, disabled }) => (
           <Button
             key={action}
@@ -128,24 +128,24 @@ export default function ResourceDetailPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle className="text-base">Resource Info</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">Thông tin tài nguyên</CardTitle></CardHeader>
           <CardContent className="divide-y divide-[var(--border)]">
-            <InfoRow label="Slug" value={resource.slug} />
-            <InfoRow label="Category" value={resource.category} />
-            <InfoRow label="Status" value={resource.status} />
-            <InfoRow label="Created" value={new Date(resource.createdAt).toLocaleDateString()} />
-            <InfoRow label="Updated" value={new Date(resource.updatedAt).toLocaleDateString()} />
+            <InfoRow label="Đường dẫn" value={resource.slug} />
+            <InfoRow label="Danh mục" value={resource.category} />
+            <InfoRow label="Trạng thái" value={resource.status} />
+            <InfoRow label="Ngày tạo" value={new Date(resource.createdAt).toLocaleDateString()} />
+            <InfoRow label="Cập nhật" value={new Date(resource.updatedAt).toLocaleDateString()} />
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="text-base">Metadata</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">Dữ liệu bổ sung</CardTitle></CardHeader>
           <CardContent className="divide-y divide-[var(--border)]">
             {metadataEntries.length > 0 ? (
               metadataEntries.map(([key, value]) => (
                 <InfoRow key={key} label={key} value={String(value)} />
               ))
             ) : (
-              <p className="py-4 text-sm text-[var(--muted-foreground)]">No metadata available.</p>
+              <p className="py-4 text-sm text-[var(--muted-foreground)]">Không có dữ liệu bổ sung.</p>
             )}
           </CardContent>
         </Card>
@@ -155,9 +155,9 @@ export default function ResourceDetailPage() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete Resource"
-        description={`Delete "${resource.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title="Xóa tài nguyên"
+        description={`Delete "${resource.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa"
         variant="destructive"
         isLoading={deleteMutation.isPending}
         onConfirm={() => deleteMutation.mutate()}
