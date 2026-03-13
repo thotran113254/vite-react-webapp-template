@@ -52,7 +52,7 @@ function getClient(): GoogleGenAI {
 }
 
 /**
- * Generate a chat response using Gemini 2.0 Flash with KB context.
+ * Generate a chat response using Gemini 3.0 Flash Preview with KB context.
  * @param messages - Conversation history (role + content pairs)
  * @param kbContext - Knowledge base articles concatenated as context
  */
@@ -74,7 +74,7 @@ export async function generateChatResponse(
   if (!lastMessage) throw new Error("No messages provided");
 
   const chat = client.chats.create({
-    model: "gemini-2.5-flash",
+    model: "gemini-3-flash-preview",
     config: { systemInstruction: systemPrompt },
     history,
   });
