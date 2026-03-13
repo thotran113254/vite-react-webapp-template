@@ -8,3 +8,4 @@ export * from "./booking-schemas";
 export * from "./chat-schemas";
 export * from "./kb-schemas";
 export * from "./pricing-schemas";
+export * from "./itinerary-schemas";

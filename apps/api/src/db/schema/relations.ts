@@ -8,12 +8,15 @@ import { knowledgeBase } from "./knowledge-base-schema";
 import { chatSessions } from "./chat-sessions-schema";
 import { chatMessages } from "./chat-messages-schema";
 import { pricingRules } from "./pricing-rules-schema";
+import { trips } from "./trips-schema";
+import { itineraryItems } from "./itinerary-items-schema";
 
 export const usersRelations = relations(users, ({ many }) => ({
   resources: many(resources),
   bookings: many(bookings),
   chatSessions: many(chatSessions),
   knowledgeBase: many(knowledgeBase),
+  trips: many(trips),
 }));
 
 export const resourcesRelations = relations(resources, ({ one }) => ({
@@ -81,5 +84,20 @@ export const pricingRulesRelations = relations(pricingRules, ({ one }) => ({
   hotel: one(hotels, {
     fields: [pricingRules.hotelId],
     references: [hotels.id],
+  }),
+}));
+
+export const tripsRelations = relations(trips, ({ one, many }) => ({
+  user: one(users, {
+    fields: [trips.userId],
+    references: [users.id],
+  }),
+  items: many(itineraryItems),
+}));
+
+export const itineraryItemsRelations = relations(itineraryItems, ({ one }) => ({
+  trip: one(trips, {
+    fields: [itineraryItems.tripId],
+    references: [trips.id],
   }),
 }));

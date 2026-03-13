@@ -7,3 +7,4 @@ export * from "./booking-types";
 export * from "./chat-types";
 export * from "./kb-types";
 export * from "./pricing-types";
+export * from "./itinerary-types";

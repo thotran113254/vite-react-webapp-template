@@ -1,5 +1,5 @@
 import { db, queryClient } from "./connection";
-import { users, resources, hotels, hotelRooms, knowledgeBase } from "./schema";
+import { users, resources, hotels, hotelRooms, knowledgeBase, trips, itineraryItems } from "./schema";
 import { hashPassword } from "../lib/password-utils";
 import { eq } from "drizzle-orm";
 
@@ -151,6 +151,62 @@ async function seed() {
     console.log(`  Created ${insertedKb.length} KB articles`);
   } else {
     console.log("  KB articles already exist");
+  }
+
+  // Seed trips and itinerary items
+  const existingTrips = await db.select().from(trips).limit(1);
+  if (existingTrips.length === 0) {
+    const [activeTrip] = await db.insert(trips).values([
+      {
+        userId: userId,
+        title: "Kyoto Expedition",
+        destination: "Kyoto, Japan",
+        startDate: new Date("2026-04-12"),
+        endDate: new Date("2026-04-16"),
+        guests: 2,
+        status: "active",
+        coverImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800",
+        notes: "Cherry blossom season trip",
+      },
+      {
+        userId: userId,
+        title: "London Business",
+        destination: "London, UK",
+        startDate: new Date("2026-06-05"),
+        endDate: new Date("2026-06-08"),
+        guests: 1,
+        status: "draft",
+        coverImage: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800",
+        notes: "Pending flight selection",
+      },
+      {
+        userId: userId,
+        title: "Da Nang Summer 2026",
+        destination: "Da Nang, Vietnam",
+        startDate: new Date("2026-08-10"),
+        endDate: new Date("2026-08-14"),
+        guests: 4,
+        status: "draft",
+        coverImage: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800",
+        notes: "Family beach vacation",
+      },
+    ]).returning();
+
+    if (activeTrip) {
+      await db.insert(itineraryItems).values([
+        { tripId: activeTrip.id, dayNumber: 1, startTime: "09:00", endTime: "14:00", type: "flight", title: "Flight JL 402", subtitle: "Japan Airlines", location: "SFO → KIX", confirmationCode: "#52992", sortOrder: 1, metadata: { airline: "Japan Airlines", from: "San Francisco", to: "Osaka" } },
+        { tripId: activeTrip.id, dayNumber: 1, startTime: "15:00", endTime: "16:00", type: "hotel", title: "Ace Hotel Kyoto", subtitle: "245-2 Kurumayacho, Nakagyo Ward", location: "Kyoto, Japan", confirmationCode: "ACE-802", sortOrder: 2 },
+        { tripId: activeTrip.id, dayNumber: 1, startTime: "19:00", endTime: "21:00", type: "restaurant", title: "Dinner at Monk", subtitle: "Omakase Course • 2 Guests", location: "Kyoto, Japan", confirmationCode: "#8821", sortOrder: 3 },
+        { tripId: activeTrip.id, dayNumber: 2, startTime: "10:00", endTime: "13:00", type: "tour", title: "Fushimi Inari Shrine Tour", subtitle: "Private walking tour with local guide Kenji", location: "Fushimi-ku, Kyoto", sortOrder: 1, metadata: { duration: "3.5 Hours", activity: "Medium Activity" } },
+        { tripId: activeTrip.id, dayNumber: 2, startTime: "14:30", endTime: "16:00", type: "activity", title: "Tea Ceremony in Gion", subtitle: "Traditional matcha ceremony experience", location: "Gion District, Kyoto", sortOrder: 2 },
+        { tripId: activeTrip.id, dayNumber: 3, startTime: "09:00", endTime: "12:00", type: "tour", title: "Arashiyama Bamboo Grove", subtitle: "Self-guided morning walk", location: "Arashiyama, Kyoto", sortOrder: 1 },
+        { tripId: activeTrip.id, dayNumber: 3, startTime: "13:00", endTime: "14:00", type: "restaurant", title: "Lunch at Tenryu-ji", subtitle: "Shojin Ryori (Buddhist cuisine)", location: "Arashiyama, Kyoto", sortOrder: 2 },
+        { tripId: activeTrip.id, dayNumber: 4, startTime: "10:00", endTime: "14:00", type: "flight", title: "Flight JL 403", subtitle: "Japan Airlines", location: "KIX → SFO", confirmationCode: "#53001", sortOrder: 1 },
+      ]);
+    }
+    console.log("  Created sample trips and itinerary items");
+  } else {
+    console.log("  Trips already exist");
   }
 
   console.log("Seed completed!");

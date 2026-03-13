@@ -7,6 +7,8 @@ import { bookingRoutes } from "../modules/bookings/booking-routes.js";
 import { chatRoutes } from "../modules/chat/chat-routes.js";
 import { kbRoutes } from "../modules/knowledge-base/kb-routes.js";
 import { pricingRoutes } from "../modules/pricing/pricing-routes.js";
+import { dashboardRoutes } from "../modules/dashboard/dashboard-routes.js";
+import { itineraryRoutes } from "../modules/itinerary/itinerary-routes.js";
 
 const routes = new Hono();
 
@@ -37,5 +39,11 @@ routes.route("/knowledge-base", kbRoutes);
 
 // Pricing routes: /pricing/*
 routes.route("/pricing", pricingRoutes);
+
+// Dashboard routes: /dashboard/*
+routes.route("/dashboard", dashboardRoutes);
+
+// Itinerary routes: /itinerary/*
+routes.route("/itinerary", itineraryRoutes);
 
 export { routes };

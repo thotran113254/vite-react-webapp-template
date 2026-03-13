@@ -7,4 +7,6 @@ export * from "./knowledge-base-schema";
 export * from "./chat-sessions-schema";
 export * from "./chat-messages-schema";
 export * from "./pricing-rules-schema";
+export * from "./trips-schema";
+export * from "./itinerary-items-schema";
 export * from "./relations";
