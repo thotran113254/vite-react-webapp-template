@@ -1,25 +1,20 @@
-import { useEffect, useRef, useCallback } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bot } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useRef, useCallback, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Bot, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatMessageBubble } from "@/components/chat/chat-message-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatSuggestionChips } from "@/components/chat/chat-suggestion-chips";
-import type { ChatSession, ChatMessage, SendMessageDto } from "@app/shared";
+import { ChatSessionSidebar } from "@/components/chat/chat-session-sidebar";
+import type { ChatSession, ChatMessage } from "@app/shared";
 
 interface ApiList<T> { data: T[] }
 interface ApiItem<T> { data: T }
 
-async function fetchOrCreateSession(): Promise<ChatSession> {
+async function fetchSessions(): Promise<ChatSession[]> {
   const res = await apiClient.get<ApiList<ChatSession>>("/chat/sessions");
-  const sessions = res.data.data;
-  if (sessions.length > 0) return sessions[0] as ChatSession;
-  const created = await apiClient.post<ApiItem<ChatSession>>("/chat/sessions", {
-    title: "Cuộc hội thoại mới",
-  });
-  return created.data.data;
+  return res.data.data;
 }
 
 async function fetchMessages(sessionId: string): Promise<ChatMessage[]> {
@@ -29,31 +24,73 @@ async function fetchMessages(sessionId: string): Promise<ChatMessage[]> {
   return res.data.data;
 }
 
-/** Full-page AI travel assistant chat interface with SSE streaming. */
+/** Full-page AI travel assistant chat with session management + SSE streaming. */
 export default function ChatPage() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const { data: session } = useQuery({
-    queryKey: ["chat-session"],
-    queryFn: fetchOrCreateSession,
+  // Fetch all sessions
+  const { data: sessions = [] } = useQuery({
+    queryKey: ["chat-sessions"],
+    queryFn: fetchSessions,
   });
 
+  // Auto-select first session if none active
+  useEffect(() => {
+    if (!activeSessionId && sessions.length > 0) {
+      setActiveSessionId(sessions[0]!.id);
+    }
+  }, [sessions, activeSessionId]);
+
+  const activeSession = sessions.find((s) => s.id === activeSessionId);
+
+  // Fetch messages for active session
   const { data: serverMessages = [] } = useQuery({
-    queryKey: ["chat-messages", session?.id],
-    queryFn: () => fetchMessages(session!.id),
-    enabled: !!session?.id,
+    queryKey: ["chat-messages", activeSessionId],
+    queryFn: () => fetchMessages(activeSessionId!),
+    enabled: !!activeSessionId,
   });
 
+  // Create new session
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.post<ApiItem<ChatSession>>("/chat/sessions", {
+        title: "Cuộc hội thoại mới",
+      });
+      return res.data.data;
+    },
+    onSuccess: (newSession) => {
+      queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
+      setActiveSessionId(newSession.id);
+    },
+  });
+
+  // Delete session
+  const deleteMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
+      await apiClient.delete(`/chat/sessions/${sessionId}`);
+      return sessionId;
+    },
+    onSuccess: (deletedId) => {
+      queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
+      if (activeSessionId === deletedId) {
+        const remaining = sessions.filter((s) => s.id !== deletedId);
+        setActiveSessionId(remaining.length > 0 ? remaining[0]!.id : null);
+      }
+    },
+  });
+
+  // Streaming
   const onStreamComplete = useCallback(
     (userMsg: ChatMessage, assistantMsg: ChatMessage) => {
       queryClient.setQueryData<ChatMessage[]>(
-        ["chat-messages", session?.id],
+        ["chat-messages", activeSessionId],
         (prev = []) => [...prev, userMsg, assistantMsg],
       );
     },
-    [queryClient, session?.id],
+    [queryClient, activeSessionId],
   );
 
   const { send, streamingText, isStreaming, error } = useChatStream({
@@ -61,82 +98,118 @@ export default function ChatPage() {
   });
 
   function handleSend(content: string) {
-    if (!session || isStreaming) return;
-    send(session.id, content);
+    if (!activeSessionId || isStreaming) return;
+    send(activeSessionId, content);
   }
 
-  // Scroll to bottom on new messages or streaming text
+  function handleSelectSession(session: ChatSession) {
+    if (isStreaming) return;
+    setActiveSessionId(session.id);
+  }
+
+  // Scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [serverMessages.length, streamingText]);
 
   return (
-    <div className="flex h-full flex-col -m-6">
-      {/* Chat header */}
-      <div className="flex items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4 py-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-600">
-          <Bot size={16} className="text-white" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-[var(--foreground)]">Trợ lý AI</p>
-          <span className="inline-flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
-            Online
-          </span>
-        </div>
-      </div>
+    <div className="flex h-full -m-6">
+      {/* Session sidebar */}
+      {sidebarOpen && (
+        <ChatSessionSidebar
+          sessions={sessions}
+          activeSessionId={activeSessionId ?? undefined}
+          onSelect={handleSelectSession}
+          onNew={() => createMutation.mutate()}
+          onDelete={(id) => deleteMutation.mutate(id)}
+          isCreating={createMutation.isPending}
+        />
+      )}
 
-      {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="mx-auto max-w-2xl space-y-4">
-          {serverMessages.length === 0 && !isStreaming && (
-            <div className="py-16 text-center text-sm text-[var(--muted-foreground)]">
-              Bắt đầu cuộc trò chuyện về khách sạn và du lịch
-            </div>
-          )}
-          {serverMessages.map((msg) => (
-            <ChatMessageBubble
-              key={msg.id}
-              role={msg.role === "system" ? "assistant" : msg.role}
-              content={msg.content}
-              createdAt={msg.createdAt}
-            />
-          ))}
-          {/* Streaming AI response — shown as a live-updating bubble */}
-          {isStreaming && streamingText && (
-            <ChatMessageBubble
-              role="assistant"
-              content={streamingText}
-              createdAt={new Date().toISOString()}
-            />
-          )}
-          {isStreaming && !streamingText && (
-            <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-              <div className="flex gap-1">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:0ms]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:150ms]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:300ms]" />
+      {/* Main chat area */}
+      <div className="flex flex-1 flex-col">
+        {/* Chat header */}
+        <div className="flex items-center gap-3 border-b border-[var(--border)] bg-[var(--card)] px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="rounded p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+            aria-label={sidebarOpen ? "Ẩn sidebar" : "Hiện sidebar"}
+          >
+            {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+          </button>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-600">
+            <Bot size={16} className="text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+              {activeSession?.title ?? "Trợ lý AI"}
+            </p>
+            <span className="inline-flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+              Online
+            </span>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="mx-auto max-w-2xl space-y-4">
+            {!activeSessionId && (
+              <div className="py-16 text-center text-sm text-[var(--muted-foreground)]">
+                Tạo cuộc hội thoại mới để bắt đầu
               </div>
-              AI đang trả lời...
-            </div>
-          )}
-          {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-              Không thể nhận phản hồi từ AI. Vui lòng thử lại.
-            </div>
-          )}
-          <div ref={bottomRef} />
+            )}
+            {activeSessionId && serverMessages.length === 0 && !isStreaming && (
+              <div className="py-16 text-center text-sm text-[var(--muted-foreground)]">
+                Bắt đầu cuộc trò chuyện về khách sạn và du lịch
+              </div>
+            )}
+            {serverMessages.map((msg) => (
+              <ChatMessageBubble
+                key={msg.id}
+                role={msg.role === "system" ? "assistant" : msg.role}
+                content={msg.content}
+                createdAt={msg.createdAt}
+              />
+            ))}
+            {isStreaming && streamingText && (
+              <ChatMessageBubble
+                role="assistant"
+                content={streamingText}
+                createdAt={new Date().toISOString()}
+              />
+            )}
+            {isStreaming && !streamingText && (
+              <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                <div className="flex gap-1">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:0ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:150ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:300ms]" />
+                </div>
+                AI đang trả lời...
+              </div>
+            )}
+            {error && (
+              <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                Không thể nhận phản hồi từ AI. Vui lòng thử lại.
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-[var(--border)] bg-[var(--card)] px-4 pb-4 pt-3">
-        <div className="mx-auto max-w-2xl space-y-3">
-          <ChatSuggestionChips onSelect={handleSend} />
-          <ChatInput onSend={handleSend} disabled={isStreaming || !session} />
-          <p className="text-center text-[10px] text-[var(--muted-foreground)]">
-            AI có thể mắc sai sót. Vui lòng xác minh thông tin quan trọng trước khi đặt phòng.
-          </p>
+        {/* Bottom bar */}
+        <div className="border-t border-[var(--border)] bg-[var(--card)] px-4 pb-4 pt-3">
+          <div className="mx-auto max-w-2xl space-y-3">
+            {activeSessionId && serverMessages.length === 0 && !isStreaming && (
+              <ChatSuggestionChips onSelect={handleSend} />
+            )}
+            <ChatInput onSend={handleSend} disabled={isStreaming || !activeSessionId} />
+            <p className="text-center text-[10px] text-[var(--muted-foreground)]">
+              AI có thể mắc sai sót. Vui lòng xác minh thông tin quan trọng trước khi đặt phòng.
+            </p>
+          </div>
         </div>
       </div>
     </div>
