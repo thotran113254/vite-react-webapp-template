@@ -196,7 +196,14 @@ export default function ChatPage() {
             {serverMessages.map((msg) => {
               const meta = msg.metadata as Record<string, unknown> | undefined;
               const savedUsage = meta?.tokenUsage && meta?.estimatedCost
-                ? { tokenUsage: meta.tokenUsage, estimatedCost: meta.estimatedCost } as import("@/hooks/use-chat-stream").TokenUsageInfo
+                ? {
+                    tokenUsage: meta.tokenUsage,
+                    estimatedCost: meta.estimatedCost,
+                    turn: meta.turn as number | undefined,
+                    durationMs: meta.durationMs as number | undefined,
+                    hasThinking: meta.hasThinking as boolean | undefined,
+                    hasCachedContext: meta.hasCachedContext as boolean | undefined,
+                  } as import("@/hooks/use-chat-stream").TokenUsageInfo
                 : null;
               return (
                 <div key={msg.id}>

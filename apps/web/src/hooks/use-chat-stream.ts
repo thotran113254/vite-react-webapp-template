@@ -21,6 +21,14 @@ export interface TokenUsageInfo {
     thinkingCost: number;
     totalCost: number;
   };
+  /** Conversation turn number (1-based) */
+  turn?: number;
+  /** Processing duration in ms */
+  durationMs?: number;
+  /** Whether thinking mode was used */
+  hasThinking?: boolean;
+  /** Whether context caching was used */
+  hasCachedContext?: boolean;
 }
 
 interface UseChatStreamOptions {
@@ -166,10 +174,10 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
                 } else if (currentEvent === "ai-complete") {
                   // Final flush before completing
                   flushRemaining();
-                  const { tokenUsage, estimatedCost, ...msgData } = data;
+                  const { tokenUsage, estimatedCost, turn, durationMs, hasThinking, hasCachedContext, ...msgData } = data;
                   const assistantMsg = msgData as ChatMessage;
                   const usage = tokenUsage && estimatedCost
-                    ? { tokenUsage, estimatedCost } as TokenUsageInfo
+                    ? { tokenUsage, estimatedCost, turn, durationMs, hasThinking, hasCachedContext } as TokenUsageInfo
                     : undefined;
                   if (usage) setLastUsage(usage);
                   setPendingUserMessage(null);

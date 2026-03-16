@@ -95,9 +95,12 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
       id: String(chunkId++),
     });
 
-    // Stream AI response chunks with token usage tracking
+    // Stream AI response with turn tracking + token usage
     let fullContent = "";
     let tokenUsage: TokenUsage | null = null;
+    const startTime = Date.now();
+    // Turn = number of conversation messages before this one (user+assistant pairs)
+    const turnNumber = Math.ceil(history.length / 2);
 
     try {
       const gen = generateChatResponseStream(history, kbContext, (u) => { tokenUsage = u; });
@@ -110,25 +113,41 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
         });
       }
 
-      // Build metadata with token usage + cost estimate
-      const usageMeta: Record<string, unknown> = {};
-      if (tokenUsage) {
-        const cost = estimateCost(tokenUsage);
-        usageMeta.tokenUsage = tokenUsage;
-        usageMeta.estimatedCost = cost;
-        usageMeta.model = "gemini-3-flash-preview";
+      const durationMs = Date.now() - startTime;
+
+      // Build metadata with full processing details
+      const usageMeta: Record<string, unknown> = {
+        model: "gemini-3-flash-preview",
+        turn: turnNumber,
+        durationMs,
+        historyMessages: history.length,
+        hasThinking: (tokenUsage as TokenUsage | null)?.thinkingTokens ? true : false,
+        hasCachedContext: (tokenUsage as TokenUsage | null)?.cachedTokens ? true : false,
+      };
+      const finalUsage = tokenUsage as TokenUsage | null;
+      if (finalUsage) {
+        usageMeta.tokenUsage = finalUsage;
+        usageMeta.estimatedCost = estimateCost(finalUsage);
       }
 
-      // Save complete response to DB with usage metadata
+      // Save complete response to DB with metadata
       const assistantMsg = await chatService.saveAssistantMessage(
         c.req.param("id"),
         fullContent,
         usageMeta,
       );
 
-      // Send final event with message + usage info
+      // Send final event with all processing info
       await stream.writeSSE({
-        data: JSON.stringify({ ...assistantMsg, tokenUsage, estimatedCost: tokenUsage ? estimateCost(tokenUsage) : null }),
+        data: JSON.stringify({
+          ...assistantMsg,
+          tokenUsage: finalUsage,
+          estimatedCost: finalUsage ? estimateCost(finalUsage) : null,
+          turn: turnNumber,
+          durationMs,
+          hasThinking: !!finalUsage?.thinkingTokens,
+          hasCachedContext: !!finalUsage?.cachedTokens,
+        }),
         event: "ai-complete",
         id: String(chunkId++),
       });
