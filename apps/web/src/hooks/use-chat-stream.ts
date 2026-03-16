@@ -37,6 +37,8 @@ interface UseChatStreamReturn {
   error: string | null;
   /** Token usage from last completed message */
   lastUsage: TokenUsageInfo | null;
+  /** Optimistic user message shown immediately while waiting for SSE */
+  pendingUserMessage: ChatMessage | null;
 }
 
 /**
@@ -49,6 +51,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUsage, setLastUsage] = useState<TokenUsageInfo | null>(null);
+  const [pendingUserMessage, setPendingUserMessage] = useState<ChatMessage | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   // Buffer: raw accumulated text that hasn't been flushed to state yet
@@ -98,6 +101,16 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
     setStreamingText("");
     setIsStreaming(true);
     setError(null);
+
+    // Show user message immediately (optimistic)
+    setPendingUserMessage({
+      id: `pending-${Date.now()}`,
+      sessionId,
+      role: "user",
+      content,
+      metadata: {},
+      createdAt: new Date().toISOString(),
+    });
 
     const baseUrl = import.meta.env.VITE_API_URL ?? "/api/v1";
     const token = localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -159,6 +172,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
                     ? { tokenUsage, estimatedCost } as TokenUsageInfo
                     : undefined;
                   if (usage) setLastUsage(usage);
+                  setPendingUserMessage(null);
                   if (userMsg) onComplete?.(userMsg, assistantMsg, usage);
                 } else if (currentEvent === "error") {
                   throw new Error(data.error ?? "Stream error");
@@ -177,6 +191,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
       .catch((err) => {
         stopFlushing();
         if (err instanceof Error && err.name === "AbortError") return;
+        setPendingUserMessage(null);
         const msg = err instanceof Error ? err.message : "Stream failed";
         setError(msg);
         onError?.(msg);
@@ -187,5 +202,5 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
       });
   }, [onComplete, onError]);
 
-  return { send, streamingText, isStreaming, error, lastUsage };
+  return { send, streamingText, isStreaming, error, lastUsage, pendingUserMessage };
 }

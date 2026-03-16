@@ -94,7 +94,7 @@ export default function ChatPage() {
     [queryClient, activeSessionId],
   );
 
-  const { send, streamingText, isStreaming, error, lastUsage } = useChatStream({
+  const { send, streamingText, isStreaming, error, lastUsage, pendingUserMessage } = useChatStream({
     onComplete: onStreamComplete,
   });
 
@@ -174,6 +174,14 @@ export default function ChatPage() {
                 createdAt={msg.createdAt}
               />
             ))}
+            {/* User message shown immediately while waiting for AI */}
+            {pendingUserMessage && (
+              <ChatMessageBubble
+                role="user"
+                content={pendingUserMessage.content}
+                createdAt={pendingUserMessage.createdAt}
+              />
+            )}
             {isStreaming && streamingText && (
               <ChatMessageBubble
                 role="assistant"
