@@ -120,16 +120,40 @@ export async function generateChatResponse(
   return response.text ?? "";
 }
 
-/** Token usage metadata returned after streaming completes */
+/** Full token usage breakdown from Gemini API usageMetadata */
 export interface TokenUsage {
   promptTokens: number;
   responseTokens: number;
+  thinkingTokens: number;
+  cachedTokens: number;
   totalTokens: number;
+}
+
+/** Raw Gemini usageMetadata shape */
+interface GeminiUsageMeta {
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  thoughtsTokenCount?: number;
+  cachedContentTokenCount?: number;
+  totalTokenCount?: number;
+}
+
+/** Extract token usage from Gemini response chunk */
+function extractUsage(chunk: unknown): TokenUsage | null {
+  const meta = (chunk as Record<string, unknown>)?.usageMetadata as GeminiUsageMeta | undefined;
+  if (!meta) return null;
+  return {
+    promptTokens: meta.promptTokenCount ?? 0,
+    responseTokens: meta.candidatesTokenCount ?? 0,
+    thinkingTokens: meta.thoughtsTokenCount ?? 0,
+    cachedTokens: meta.cachedContentTokenCount ?? 0,
+    totalTokens: meta.totalTokenCount ?? 0,
+  };
 }
 
 /**
  * Generate a streaming chat response using Gemini.
- * Yields text chunks as they arrive. Calls onUsage with token counts when done.
+ * Yields text chunks as they arrive. Calls onUsage with full token breakdown when done.
  */
 export async function* generateChatResponseStream(
   messages: ChatMessage[],
@@ -146,17 +170,8 @@ export async function* generateChatResponseStream(
     if (text) yield text;
   }
 
-  // Extract usageMetadata from the last chunk
   if (lastChunk && onUsage) {
-    const meta = (lastChunk as Record<string, unknown>).usageMetadata as
-      | { promptTokenCount?: number; candidatesTokenCount?: number; totalTokenCount?: number }
-      | undefined;
-    if (meta) {
-      onUsage({
-        promptTokens: meta.promptTokenCount ?? 0,
-        responseTokens: meta.candidatesTokenCount ?? 0,
-        totalTokens: meta.totalTokenCount ?? 0,
-      });
-    }
+    const usage = extractUsage(lastChunk);
+    if (usage) onUsage(usage);
   }
 }

@@ -7,8 +7,20 @@ const ACCESS_TOKEN_KEY = "access_token";
 const FLUSH_INTERVAL_MS = 50;
 
 export interface TokenUsageInfo {
-  tokenUsage: { promptTokens: number; responseTokens: number; totalTokens: number };
-  estimatedCost: { inputCost: number; outputCost: number; totalCost: number };
+  tokenUsage: {
+    promptTokens: number;
+    responseTokens: number;
+    thinkingTokens: number;
+    cachedTokens: number;
+    totalTokens: number;
+  };
+  estimatedCost: {
+    inputCost: number;
+    cachedCost: number;
+    outputCost: number;
+    thinkingCost: number;
+    totalCost: number;
+  };
 }
 
 interface UseChatStreamOptions {

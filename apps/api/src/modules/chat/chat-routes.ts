@@ -5,13 +5,28 @@ import { authMiddleware } from "../../middleware/auth-middleware.js";
 import * as chatService from "./chat-service.js";
 import { generateChatResponseStream, type TokenUsage } from "./gemini-service.js";
 
-/** Gemini 3 Flash Preview pricing (USD per 1M tokens) */
-const PRICING = { inputPerMillion: 0.50, outputPerMillion: 3.00 } as const;
+/**
+ * Gemini 3 Flash Preview pricing (USD per 1M tokens)
+ * Source: https://ai.google.dev/pricing (paid tier, March 2026)
+ * - Cached input tokens are discounted (typically 50% off)
+ * - Thinking tokens billed at output rate
+ */
+const PRICING = {
+  inputPerMillion: 0.50,
+  outputPerMillion: 3.00,
+  cachedInputPerMillion: 0.25,
+  thinkingPerMillion: 3.00,
+} as const;
 
-function estimateCost(usage: TokenUsage): { inputCost: number; outputCost: number; totalCost: number } {
-  const inputCost = (usage.promptTokens / 1_000_000) * PRICING.inputPerMillion;
+function estimateCost(usage: TokenUsage) {
+  // Non-cached input tokens = prompt - cached
+  const regularInput = Math.max(0, usage.promptTokens - usage.cachedTokens);
+  const inputCost = (regularInput / 1_000_000) * PRICING.inputPerMillion;
+  const cachedCost = (usage.cachedTokens / 1_000_000) * PRICING.cachedInputPerMillion;
   const outputCost = (usage.responseTokens / 1_000_000) * PRICING.outputPerMillion;
-  return { inputCost, outputCost, totalCost: inputCost + outputCost };
+  const thinkingCost = (usage.thinkingTokens / 1_000_000) * PRICING.thinkingPerMillion;
+  const totalCost = inputCost + cachedCost + outputCost + thinkingCost;
+  return { inputCost, cachedCost, outputCost, thinkingCost, totalCost };
 }
 
 export const chatRoutes = new Hono();
