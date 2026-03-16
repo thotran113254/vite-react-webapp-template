@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from "react";
+import { useRef, useEffect, type KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,9 +7,14 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
-/** Chat input bar with Enter-to-send and teal send button. */
+/** Chat input bar with Enter-to-send and teal send button. Auto-focuses when enabled. */
 export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus when input becomes enabled (e.g. after AI finishes)
+  useEffect(() => {
+    if (!disabled) inputRef.current?.focus();
+  }, [disabled]);
 
   function handleSend() {
     const value = inputRef.current?.value.trim();

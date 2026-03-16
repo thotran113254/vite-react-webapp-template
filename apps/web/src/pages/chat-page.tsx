@@ -166,14 +166,22 @@ export default function ChatPage() {
                 Bắt đầu cuộc trò chuyện về khách sạn và du lịch
               </div>
             )}
-            {serverMessages.map((msg) => (
-              <ChatMessageBubble
-                key={msg.id}
-                role={msg.role === "system" ? "assistant" : msg.role}
-                content={msg.content}
-                createdAt={msg.createdAt}
-              />
-            ))}
+            {serverMessages.map((msg) => {
+              const meta = msg.metadata as Record<string, unknown> | undefined;
+              const savedUsage = meta?.tokenUsage && meta?.estimatedCost
+                ? { tokenUsage: meta.tokenUsage, estimatedCost: meta.estimatedCost } as import("@/hooks/use-chat-stream").TokenUsageInfo
+                : null;
+              return (
+                <div key={msg.id}>
+                  <ChatMessageBubble
+                    role={msg.role === "system" ? "assistant" : msg.role}
+                    content={msg.content}
+                    createdAt={msg.createdAt}
+                  />
+                  {savedUsage && <ChatTokenUsage usage={savedUsage} />}
+                </div>
+              );
+            })}
             {/* User message shown immediately while waiting for AI */}
             {pendingUserMessage && (
               <ChatMessageBubble
@@ -204,8 +212,10 @@ export default function ChatPage() {
                 Không thể nhận phản hồi từ AI. Vui lòng thử lại.
               </div>
             )}
-            {/* Token usage for last message */}
-            {!isStreaming && lastUsage && <ChatTokenUsage usage={lastUsage} />}
+            {/* Token usage for streaming message (before it's saved to server) */}
+            {!isStreaming && lastUsage && !serverMessages.some(m => (m.metadata as Record<string,unknown>)?.tokenUsage) && (
+              <ChatTokenUsage usage={lastUsage} />
+            )}
             <div ref={bottomRef} />
           </div>
         </div>
