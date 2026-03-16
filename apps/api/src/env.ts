@@ -28,7 +28,7 @@ export const env = {
   // Optional with defaults
   API_PORT: parseInt(optionalEnv("API_PORT", "3001"), 10),
   API_PREFIX: optionalEnv("API_PREFIX", "/api/v1"),
-  CORS_ORIGINS: optionalEnv("CORS_ORIGINS", "http://localhost:5173").split(","),
+  CORS_ORIGINS: optionalEnv("CORS_ORIGINS", "http://localhost:3002").split(","),
   JWT_ACCESS_EXPIRES_IN: optionalEnv("JWT_ACCESS_EXPIRES_IN", "15m"),
   JWT_REFRESH_EXPIRES_IN: optionalEnv("JWT_REFRESH_EXPIRES_IN", "7d"),
 

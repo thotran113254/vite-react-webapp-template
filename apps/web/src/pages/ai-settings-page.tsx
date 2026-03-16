@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PageSpinner } from "@/components/ui/spinner";
+import { PricingOptionsManager } from "@/components/market-data/pricing-options-manager";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/use-auth";
 import { Navigate } from "react-router-dom";
@@ -105,6 +106,10 @@ export default function AiSettingsPage() {
             </div>
           );
         })}
+      </div>
+      {/* Pricing options (combo/day types) management */}
+      <div className="mt-8 pt-6 border-t border-[var(--border)]">
+        <PricingOptionsManager />
       </div>
     </div>
   );

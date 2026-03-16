@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import { bodyLimit } from "hono/body-limit";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { env } from "./env.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { rateLimiter } from "./middleware/rate-limiter.js";
@@ -30,7 +31,8 @@ export function createApp(): Hono {
     }),
   );
 
-  // Request body size limit (1MB)
+  // Request body size limit: 6MB for uploads, 1MB default
+  app.use("/api/v1/upload/*", bodyLimit({ maxSize: 6 * 1024 * 1024 }));
   app.use("*", bodyLimit({ maxSize: 1024 * 1024 }));
 
   // Rate limiting
@@ -38,6 +40,9 @@ export function createApp(): Hono {
 
   // Structured request logger
   app.use("*", requestLogger);
+
+  // Serve uploaded files
+  app.use("/uploads/*", serveStatic({ root: "./" }));
 
   // Health check endpoint
   app.get("/health", (c) => {

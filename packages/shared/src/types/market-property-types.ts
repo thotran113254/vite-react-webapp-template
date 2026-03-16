@@ -157,6 +157,20 @@ export interface PricingConfig {
   updatedAt: string;
 }
 
+export interface PricingOption {
+  id: string;
+  category: string;
+  optionKey: string;
+  label: string;
+  description: string | null;
+  config: Record<string, unknown>;
+  sortOrder: number;
+  isActive: boolean;
+  aiVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AiDataSetting {
   id: string;
   dataCategory: string;

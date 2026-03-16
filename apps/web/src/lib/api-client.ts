@@ -11,7 +11,7 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "/api/v1",
   headers: { "Content-Type": "application/json" },
-  timeout: 10_000,
+  timeout: 30_000,
 });
 
 // Request interceptor: attach bearer token if present

@@ -2,9 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   MessageSquare,
   Hotel,
-  Calculator,
   BookOpen,
-  Package,
   Users,
   UserCircle,
   LayoutDashboard,
@@ -27,15 +25,12 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { to: "/chat", label: "Trợ lý AI", icon: MessageSquare },
   { to: "/hotels", label: "Khách sạn", icon: Hotel },
-  { to: "/pricing", label: "Tính giá", icon: Calculator },
   { to: "/profile", label: "Hồ sơ", icon: UserCircle, section: "Cài đặt" },
   // Admin section
-  { to: "/pricing/admin", label: "Tính giá (QTV)", icon: Calculator, adminOnly: true, section: "Quản trị" },
+  { to: "/markets", label: "Thị trường", icon: Globe, adminOnly: true, section: "Quản trị" },
   { to: "/knowledge-base", label: "Cơ sở tri thức", icon: BookOpen, adminOnly: true },
-  { to: "/products", label: "Sản phẩm & Giá", icon: Package, adminOnly: true },
-  { to: "/users", label: "Người dùng", icon: Users, adminOnly: true },
-  { to: "/markets", label: "Thị trường", icon: Globe, adminOnly: true },
   { to: "/settings/ai", label: "Cài đặt AI", icon: Settings, adminOnly: true },
+  { to: "/users", label: "Người dùng", icon: Users, adminOnly: true },
 ];
 
 /** Sidebar navigation with role-based link visibility. */

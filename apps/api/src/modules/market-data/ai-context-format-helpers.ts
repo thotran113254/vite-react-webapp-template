@@ -22,6 +22,84 @@ export function formatMarketHeader(market: MarketRecord): string {
   return text;
 }
 
+/** Label lookup maps populated from DB — call setPricingOptionLabels() before formatting. */
+let comboLabels: Record<string, string> = {};
+let dayLabels: Record<string, string> = {};
+let comboDescriptions: Record<string, string> = {};
+let dayDescriptions: Record<string, string> = {};
+
+/** Update label maps from pricing_options table data. Called by AI context builder. */
+export function setPricingOptionLabels(
+  options: Array<{ category: string; optionKey: string; label: string; description: string | null }>,
+): void {
+  comboLabels = {};
+  dayLabels = {};
+  comboDescriptions = {};
+  dayDescriptions = {};
+  for (const o of options) {
+    if (o.category === "combo_type") {
+      comboLabels[o.optionKey] = o.label;
+      if (o.description) comboDescriptions[o.optionKey] = o.description;
+    } else if (o.category === "day_type") {
+      dayLabels[o.optionKey] = o.label;
+      if (o.description) dayDescriptions[o.optionKey] = o.description;
+    }
+  }
+}
+
+export function getComboLabel(key: string): string { return comboLabels[key] ?? key; }
+export function getDayLabel(key: string): string { return dayLabels[key] ?? key; }
+
+/** Store day type configs for AI context (daysOfWeek mapping) */
+let dayConfigs: Record<string, { daysOfWeek: number[]; isHoliday?: boolean }> = {};
+
+/** Update day type config maps from pricing_options table data. Called by AI context builder. */
+export function setPricingOptionConfigs(
+  options: Array<{ category: string; optionKey: string; config: unknown }>,
+): void {
+  dayConfigs = {};
+  for (const o of options) {
+    if (o.category === "day_type" && o.config && typeof o.config === "object") {
+      dayConfigs[o.optionKey] = o.config as { daysOfWeek: number[]; isHoliday?: boolean };
+    }
+  }
+}
+
+/** Map day-of-week numbers to Vietnamese short names for readability */
+function dowToVn(dow: number): string {
+  const map: Record<number, string> = { 0: "CN", 1: "T2", 2: "T3", 3: "T4", 4: "T5", 5: "T6", 6: "T7" };
+  return map[dow] ?? String(dow);
+}
+
+/** Format pricing option definitions for AI context (so AI understands what each combo/day type means). */
+export function formatPricingOptionDefinitions(): string {
+  const comboEntries = Object.entries(comboLabels);
+  const dayEntries = Object.entries(dayLabels);
+  if (comboEntries.length === 0 && dayEntries.length === 0) return "";
+
+  let text = "\n[ĐỊNH NGHĨA GIÁ]\n";
+  if (comboEntries.length > 0) {
+    text += "Loại combo:\n";
+    for (const [key, label] of comboEntries) {
+      text += `  - ${key} (${label})${comboDescriptions[key] ? `: ${comboDescriptions[key]}` : ""}\n`;
+    }
+  }
+  if (dayEntries.length > 0) {
+    text += "Loại ngày (mapping ngày trong tuần → loại ngày để tra giá):\n";
+    for (const [key, label] of dayEntries) {
+      const cfg = dayConfigs[key];
+      let mapping = "";
+      if (cfg?.isHoliday) {
+        mapping = " → áp dụng cho ngày lễ/Tết";
+      } else if (cfg?.daysOfWeek?.length) {
+        mapping = ` → check-in vào ${cfg.daysOfWeek.map(dowToVn).join(", ")}`;
+      }
+      text += `  - ${key} (${label})${comboDescriptions[key] ? `: ${dayDescriptions[key]}` : ""}${mapping}\n`;
+    }
+  }
+  return text;
+}
+
 export function formatPriceRow(prices: RoomPricingRecord[]): string {
   const byCombo: Record<string, RoomPricingRecord[]> = {};
   for (const p of prices) {
@@ -30,12 +108,15 @@ export function formatPriceRow(prices: RoomPricingRecord[]): string {
 
   let text = "";
   for (const [combo, dayPrices] of Object.entries(byCombo)) {
-    const label =
-      combo === "3n2d" ? "3N2Đ" : combo === "2n1d" ? "2N1Đ" : "Giá/đêm";
-    const priceStrs = dayPrices
-      .map((p) => `${p.dayType}: ${p.price.toLocaleString("vi-VN")}₫`)
-      .join(", ");
-    text += `    ${label}: ${priceStrs}\n`;
+    const label = getComboLabel(combo);
+    text += `    ${label}:\n`;
+    for (const p of dayPrices) {
+      const parts = [`${getDayLabel(p.dayType)}: ${p.price.toLocaleString("vi-VN")}₫ (${p.standardGuests} người)`];
+      if (p.pricePlus1) parts.push(`+1ng: ${p.pricePlus1.toLocaleString("vi-VN")}₫`);
+      if (p.priceMinus1) parts.push(`-1ng: ${p.priceMinus1.toLocaleString("vi-VN")}₫`);
+      if (p.extraNight) parts.push(`thêm đêm: ${p.extraNight.toLocaleString("vi-VN")}₫`);
+      text += `      ${parts.join(" | ")}\n`;
+    }
   }
   return text;
 }

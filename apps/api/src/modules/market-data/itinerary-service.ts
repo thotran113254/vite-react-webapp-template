@@ -58,6 +58,19 @@ export async function createTemplateItem(
   return record!;
 }
 
+export async function updateTemplateItem(
+  itemId: string,
+  data: Partial<Omit<NewItineraryTemplateItemRecord, "id" | "templateId" | "createdAt" | "updatedAt">>,
+) {
+  const [existing] = await db.select().from(itineraryTemplateItems).where(eq(itineraryTemplateItems.id, itemId)).limit(1);
+  if (!existing) throw new HTTPException(404, { message: "Itinerary item not found" });
+  const [updated] = await db.update(itineraryTemplateItems)
+    .set({ ...data, updatedAt: sql`now()` })
+    .where(eq(itineraryTemplateItems.id, itemId))
+    .returning();
+  return updated!;
+}
+
 export async function deleteTemplateItem(itemId: string) {
   const [existing] = await db.select().from(itineraryTemplateItems).where(eq(itineraryTemplateItems.id, itemId)).limit(1);
   if (!existing) throw new HTTPException(404, { message: "Itinerary item not found" });

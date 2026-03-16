@@ -26,6 +26,7 @@ export * from "./property-evaluations-schema";
 export * from "./property-rooms-schema";
 export * from "./room-pricing-schema";
 export * from "./pricing-configs-schema";
+export * from "./pricing-options-schema";
 export * from "./itinerary-templates-schema";
 export * from "./itinerary-template-items-schema";
 export * from "./ai-data-settings-schema";

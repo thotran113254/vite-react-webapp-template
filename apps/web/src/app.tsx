@@ -17,10 +17,7 @@ const ProfilePage = lazy(() => import("@/pages/profile-page"));
 const ChatPage = lazy(() => import("@/pages/chat-page"));
 const HotelSearchPage = lazy(() => import("@/pages/hotel-search-page"));
 const HotelDetailPage = lazy(() => import("@/pages/hotel-detail-page"));
-const PricingSalePage = lazy(() => import("@/pages/pricing-sale-page"));
-const PricingAdminPage = lazy(() => import("@/pages/pricing-admin-page"));
 const KnowledgeBasePage = lazy(() => import("@/pages/knowledge-base-page"));
-const ProductManagementPage = lazy(() => import("@/pages/product-management-page"));
 const ItineraryDetailPage = lazy(() => import("@/pages/itinerary-detail-page"));
 const MarketsPage = lazy(() => import("@/pages/markets-page"));
 const MarketDetailPage = lazy(() => import("@/pages/market-detail-page"));
@@ -57,10 +54,7 @@ export function App() {
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/hotels" element={<HotelSearchPage />} />
               <Route path="/hotels/:slug" element={<HotelDetailPage />} />
-              <Route path="/pricing" element={<PricingSalePage />} />
-              <Route path="/pricing/admin" element={<PricingAdminPage />} />
               <Route path="/knowledge-base" element={<KnowledgeBasePage />} />
-              <Route path="/products" element={<ProductManagementPage />} />
               <Route path="/resources" element={<ResourceListPage />} />
               <Route path="/resources/:id" element={<ResourceDetailPage />} />
               <Route path="/users" element={<UsersPage />} />

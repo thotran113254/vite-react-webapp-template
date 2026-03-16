@@ -1,5 +1,6 @@
 import { Bot, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MarkdownRenderer } from "./markdown-renderer";
 
 interface ChatMessageBubbleProps {
   role: "user" | "assistant";
@@ -50,7 +51,7 @@ export function ChatMessageBubble({ role, content, createdAt }: ChatMessageBubbl
               : "rounded-tr-sm bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
           )}
         >
-          {content}
+          {isAssistant ? <MarkdownRenderer content={content} /> : content}
         </div>
         <span className="text-xs text-[var(--muted-foreground)]">{formatTime(createdAt)}</span>
       </div>

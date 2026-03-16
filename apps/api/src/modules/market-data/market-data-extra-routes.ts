@@ -7,6 +7,7 @@ import * as itineraryService from "./itinerary-service.js";
 import * as pricingConfigsService from "./pricing-configs-service.js";
 import * as aiDataSettingsService from "./ai-data-settings-service.js";
 import * as aiToggleService from "./ai-toggle-service.js";
+import * as pricingOptionsService from "./pricing-options-service.js";
 import { invalidateAiContextCache } from "./ai-context-builder.js";
 
 // ─── Property detail (non-market-scoped) ─────────────────────────────────────
@@ -79,6 +80,12 @@ roomPricingRoutes.put("/:roomId/pricing", adminMiddleware, async (c) => {
   return c.json({ success: true, data });
 });
 
+roomPricingRoutes.patch("/:roomId/pricing/:id", adminMiddleware, async (c) => {
+  const body = await c.req.json();
+  const record = await propertyRoomsService.updateRoomPricing(c.req.param("id"), body);
+  return c.json({ success: true, data: record });
+});
+
 roomPricingRoutes.delete("/:roomId/pricing/:id", adminMiddleware, async (c) => {
   await propertyRoomsService.deleteRoomPricing(c.req.param("id"));
   return c.json({ success: true, message: "Room pricing deleted" });
@@ -138,6 +145,12 @@ itineraryItemRoutes.put("/:templateId/items", adminMiddleware, async (c) => {
   return c.json({ success: true, data });
 });
 
+itineraryItemRoutes.patch("/:templateId/items/:itemId", adminMiddleware, async (c) => {
+  const body = await c.req.json();
+  const data = await itineraryService.updateTemplateItem(c.req.param("itemId"), body);
+  return c.json({ success: true, data });
+});
+
 itineraryItemRoutes.delete("/:templateId/items/:itemId", adminMiddleware, async (c) => {
   await itineraryService.deleteTemplateItem(c.req.param("itemId"));
   return c.json({ success: true, message: "Item deleted" });
@@ -191,6 +204,36 @@ aiDataSettingRoutes.patch("/:category", async (c) => {
   );
   invalidateAiContextCache();
   return c.json({ success: true, data: record });
+});
+
+// ─── Pricing Options (combo types, day types) ────────────────────────────────
+export const pricingOptionRoutes = new Hono();
+pricingOptionRoutes.use("*", authMiddleware);
+
+pricingOptionRoutes.get("/", async (c) => {
+  const category = c.req.query("category");
+  const data = category ? await pricingOptionsService.listByCategory(category) : await pricingOptionsService.listAll();
+  return c.json({ success: true, data });
+});
+
+pricingOptionRoutes.post("/", adminMiddleware, async (c) => {
+  const body = await c.req.json();
+  const record = await pricingOptionsService.create(body);
+  invalidateAiContextCache();
+  return c.json({ success: true, data: record }, 201);
+});
+
+pricingOptionRoutes.patch("/:id", adminMiddleware, async (c) => {
+  const body = await c.req.json();
+  const record = await pricingOptionsService.update(c.req.param("id"), body);
+  invalidateAiContextCache();
+  return c.json({ success: true, data: record });
+});
+
+pricingOptionRoutes.delete("/:id", adminMiddleware, async (c) => {
+  await pricingOptionsService.remove(c.req.param("id"));
+  invalidateAiContextCache();
+  return c.json({ success: true, message: "Pricing option deleted" });
 });
 
 // ─── AI Toggle ────────────────────────────────────────────────────────────────

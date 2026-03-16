@@ -21,10 +21,14 @@ export default defineConfig({
     },
     server: {
         host: '0.0.0.0',
-        port: 5173,
+        port: 3002,
         proxy: {
             "/api": {
-                target: `http://localhost:${process.env.API_PORT || '3002'}`,
+                target: `http://localhost:${process.env.API_PORT || '3001'}`,
+                changeOrigin: true,
+            },
+            "/uploads": {
+                target: `http://localhost:${process.env.API_PORT || '3001'}`,
                 changeOrigin: true,
             },
         },

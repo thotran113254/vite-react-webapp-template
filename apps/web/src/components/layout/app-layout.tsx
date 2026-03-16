@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -71,9 +71,17 @@ export function AppLayout() {
           </div>
         </header>
 
-        {/* Page content */}
+        {/* Page content — Suspense here so sidebar/header stay visible during page transitions */}
         <main className="flex-1 overflow-auto p-6">
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex h-full items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

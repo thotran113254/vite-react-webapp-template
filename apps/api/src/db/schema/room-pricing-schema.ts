@@ -8,6 +8,7 @@ import {
   boolean,
   timestamp,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { propertyRooms } from "./property-rooms-schema";
 
@@ -33,7 +34,7 @@ export const roomPricing = pgTable(
   },
   (table) => [
     index("room_pricing_room_id_idx").on(table.roomId),
-    index("room_pricing_combo_day_season_idx").on(table.roomId, table.comboType, table.dayType, table.seasonName),
+    uniqueIndex("room_pricing_combo_day_season_idx").on(table.roomId, table.comboType, table.dayType, table.seasonName),
   ],
 );
 

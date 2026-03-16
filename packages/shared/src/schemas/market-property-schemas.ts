@@ -30,9 +30,11 @@ export const createPropertyRoomSchema = z.object({
   aiVisible: z.boolean().optional(),
 });
 
+export const updatePropertyRoomSchema = createPropertyRoomSchema.partial();
+
 export const createRoomPricingSchema = z.object({
-  comboType: z.enum(["3n2d", "2n1d", "per_night"]),
-  dayType: z.enum(["weekday", "friday", "saturday", "sunday", "holiday"]),
+  comboType: z.string().min(1).max(20),
+  dayType: z.string().min(1).max(20),
   seasonName: z.string().max(100).optional(),
   seasonStart: z.string().optional(),
   seasonEnd: z.string().optional(),
@@ -97,6 +99,19 @@ export const createPricingConfigSchema = z.object({
   aiVisible: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 });
+
+export const createPricingOptionSchema = z.object({
+  category: z.enum(["combo_type", "day_type"]),
+  optionKey: z.string().min(1).max(50),
+  label: z.string().min(1).max(100),
+  description: z.string().optional(),
+  config: z.record(z.unknown()).optional(),
+  sortOrder: z.number().int().optional(),
+  isActive: z.boolean().optional(),
+  aiVisible: z.boolean().optional(),
+});
+
+export const updatePricingOptionSchema = createPricingOptionSchema.partial().omit({ category: true, optionKey: true });
 
 export const updateAiDataSettingSchema = z.object({
   isEnabled: z.boolean(),

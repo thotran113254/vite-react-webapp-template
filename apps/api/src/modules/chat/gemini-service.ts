@@ -1,6 +1,34 @@
 import { GoogleGenAI } from "@google/genai";
 import { env } from "../../env.js";
 
+/** Build current date/time context string in Vietnam timezone */
+function buildDateContext(): string {
+  const now = new Date();
+  const vnFormatter = new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    weekday: "long",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const formatted = vnFormatter.format(now);
+
+  // Get day of week number (0=CN, 1=T2, ..., 6=T7) in VN timezone
+  const vnDay = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    weekday: "short",
+  }).format(now);
+  const dayMap: Record<string, string> = {
+    Mon: "T2", Tue: "T3", Wed: "T4", Thu: "T5",
+    Fri: "T6", Sat: "T7", Sun: "CN",
+  };
+  const dayShort = dayMap[vnDay] ?? vnDay;
+
+  return `Hôm nay: ${formatted} (${dayShort})\nTimezone: Asia/Ho_Chi_Minh (UTC+7)`;
+}
+
 const SYSTEM_INSTRUCTIONS = `
 Bạn là AI Travel Assistant chuyên về du lịch Việt Nam cho nhân viên sale. Trả lời dựa trên DỮ LIỆU THỰC TẾ bên dưới.
 
@@ -11,6 +39,15 @@ Bạn là AI Travel Assistant chuyên về du lịch Việt Nam cho nhân viên 
 4. Nếu không có dữ liệu: nói rõ "chưa có thông tin trong hệ thống"
 5. Trả lời bằng tiếng Việt, chuyên nghiệp, thân thiện
 6. Khi quote giá: LUÔN ghi rõ loại combo, loại ngày, số người tiêu chuẩn
+
+## HƯỚNG DẪN TÍNH GIÁ
+- Xác định NGÀY CHECK-IN từ ý định khách (dùng "NGÀY HIỆN TẠI" bên dưới để tính ngày cụ thể)
+- Map ngày check-in sang LOẠI NGÀY: T2-T5 → weekday, T6 → friday, T7 → saturday, CN → sunday, ngày lễ → holiday
+- Xác định LOẠI COMBO từ số đêm khách muốn ở: 1 đêm → 2n1d, 2 đêm → 3n2d, linh hoạt → per_night
+- Tra BẢNG GIÁ theo: phòng + combo type + day type → ra giá chính xác
+- Nếu khách nói "cuối tuần" → check-in T6 hoặc T7, dùng day type tương ứng
+- Nếu khách thêm/bớt người so với "số người tiêu chuẩn", áp dụng phụ thu +1ng hoặc giảm -1ng
+- LUÔN hỏi lại nếu thiếu thông tin: số người, ngày đi, loại phòng
 
 ## KNOWLEDGE BASE (Dữ liệu thực tế từ hệ thống)
 `;
@@ -39,20 +76,17 @@ function getClient(): GoogleGenAI {
   return genai;
 }
 
-/**
- * Generate a chat response using Gemini 3.0 Flash Preview with KB context.
- * @param messages - Conversation history (role + content pairs)
- * @param kbContext - Knowledge base articles concatenated as context
- */
-export async function generateChatResponse(
-  messages: ChatMessage[],
-  kbContext: string,
-): Promise<string> {
+/** Build system prompt with date context and KB data */
+function buildSystemPrompt(kbContext: string): string {
+  const dateContext = buildDateContext();
+  return `## NGÀY HIỆN TẠI\n${dateContext}\n\n` + SYSTEM_INSTRUCTIONS + "\n" + kbContext;
+}
+
+/** Build Gemini chat instance with history */
+function createGeminiChat(messages: ChatMessage[], kbContext: string) {
   const client = getClient();
+  const systemPrompt = buildSystemPrompt(kbContext);
 
-  const systemPrompt = SYSTEM_INSTRUCTIONS + "\n" + kbContext;
-
-  // Build Gemini content history (all but the last message)
   const history = messages.slice(0, -1).map((m) => ({
     role: toGeminiRole(m.role),
     parts: [{ text: m.content }],
@@ -67,9 +101,35 @@ export async function generateChatResponse(
     history,
   });
 
-  const response = await chat.sendMessage({
-    message: lastMessage.content,
-  });
+  return { chat, lastMessage: lastMessage.content };
+}
 
+/**
+ * Generate a chat response (non-streaming) using Gemini.
+ * Kept as fallback for non-SSE clients.
+ */
+export async function generateChatResponse(
+  messages: ChatMessage[],
+  kbContext: string,
+): Promise<string> {
+  const { chat, lastMessage } = createGeminiChat(messages, kbContext);
+  const response = await chat.sendMessage({ message: lastMessage });
   return response.text ?? "";
+}
+
+/**
+ * Generate a streaming chat response using Gemini.
+ * Yields text chunks as they arrive from the model.
+ */
+export async function* generateChatResponseStream(
+  messages: ChatMessage[],
+  kbContext: string,
+): AsyncGenerator<string> {
+  const { chat, lastMessage } = createGeminiChat(messages, kbContext);
+  const stream = await chat.sendMessageStream({ message: lastMessage });
+
+  for await (const chunk of stream) {
+    const text = chunk.text;
+    if (text) yield text;
+  }
 }

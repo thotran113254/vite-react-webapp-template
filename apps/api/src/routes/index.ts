@@ -10,6 +10,7 @@ import { pricingRoutes } from "../modules/pricing/pricing-routes.js";
 import { dashboardRoutes } from "../modules/dashboard/dashboard-routes.js";
 import { itineraryRoutes } from "../modules/itinerary/itinerary-routes.js";
 import { marketDataRoutes } from "../modules/market-data/market-data-routes.js";
+import { uploadRoutes } from "../modules/upload/upload-routes.js";
 import {
   propertyDetailRoutes,
   propertyRoomRoutes,
@@ -19,6 +20,7 @@ import {
   pricingConfigRoutes,
   aiDataSettingRoutes,
   aiToggleRoutes,
+  pricingOptionRoutes,
 } from "../modules/market-data/market-data-extra-routes.js";
 
 const routes = new Hono();
@@ -83,5 +85,11 @@ routes.route("/ai-data-settings", aiDataSettingRoutes);
 
 // AI visibility toggle: /ai-toggle/:entityType/:entityId
 routes.route("/ai-toggle", aiToggleRoutes);
+
+// Pricing options (combo types, day types): /pricing-options
+routes.route("/pricing-options", pricingOptionRoutes);
+
+// File upload: /upload
+routes.route("/upload", uploadRoutes);
 
 export { routes };

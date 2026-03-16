@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bot } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiClient } from "@/lib/api-client";
+import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatMessageBubble } from "@/components/chat/chat-message-bubble";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatSuggestionChips } from "@/components/chat/chat-suggestion-chips";
 import type { ChatSession, ChatMessage, SendMessageDto } from "@app/shared";
 
-// Axios wraps the response body in res.data, so the actual API body is res.data
-// API body shape: { data: T }  (project's ApiResponse<T> wrapper)
 interface ApiList<T> { data: T[] }
 interface ApiItem<T> { data: T }
 
@@ -30,21 +29,11 @@ async function fetchMessages(sessionId: string): Promise<ChatMessage[]> {
   return res.data.data;
 }
 
-async function sendMessage(sessionId: string, dto: SendMessageDto): Promise<ChatMessage[]> {
-  // The API returns both the user message and the AI reply in an array
-  const res = await apiClient.post<ApiList<ChatMessage>>(
-    `/chat/sessions/${sessionId}/messages`,
-    dto,
-  );
-  return res.data.data;
-}
-
-/** Full-page AI travel assistant chat interface. */
+/** Full-page AI travel assistant chat interface with SSE streaming. */
 export default function ChatPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([]);
 
   const { data: session } = useQuery({
     queryKey: ["chat-session"],
@@ -57,38 +46,29 @@ export default function ChatPage() {
     enabled: !!session?.id,
   });
 
-  const allMessages = [...serverMessages, ...optimisticMessages];
-
-  const mutation = useMutation({
-    mutationFn: (content: string) => sendMessage(session!.id, { content }),
-    onSuccess: (newMessages) => {
-      setOptimisticMessages([]);
+  const onStreamComplete = useCallback(
+    (userMsg: ChatMessage, assistantMsg: ChatMessage) => {
       queryClient.setQueryData<ChatMessage[]>(
         ["chat-messages", session?.id],
-        (prev = []) => [...prev, ...newMessages],
+        (prev = []) => [...prev, userMsg, assistantMsg],
       );
     },
+    [queryClient, session?.id],
+  );
+
+  const { send, streamingText, isStreaming, error } = useChatStream({
+    onComplete: onStreamComplete,
   });
 
   function handleSend(content: string) {
-    if (!session || mutation.isPending) return;
-    const now = new Date().toISOString();
-    const tempMsg: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      sessionId: session.id,
-      role: "user",
-      content,
-      metadata: {},
-      createdAt: now,
-    };
-    setOptimisticMessages([tempMsg]);
-    mutation.mutate(content);
+    if (!session || isStreaming) return;
+    send(session.id, content);
   }
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new messages or streaming text
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [allMessages.length]);
+  }, [serverMessages.length, streamingText]);
 
   return (
     <div className="flex h-full flex-col -m-6">
@@ -109,12 +89,12 @@ export default function ChatPage() {
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="mx-auto max-w-2xl space-y-4">
-          {allMessages.length === 0 && (
+          {serverMessages.length === 0 && !isStreaming && (
             <div className="py-16 text-center text-sm text-[var(--muted-foreground)]">
               Bắt đầu cuộc trò chuyện về khách sạn và du lịch
             </div>
           )}
-          {allMessages.map((msg) => (
+          {serverMessages.map((msg) => (
             <ChatMessageBubble
               key={msg.id}
               role={msg.role === "system" ? "assistant" : msg.role}
@@ -122,7 +102,15 @@ export default function ChatPage() {
               createdAt={msg.createdAt}
             />
           ))}
-          {mutation.isPending && (
+          {/* Streaming AI response — shown as a live-updating bubble */}
+          {isStreaming && streamingText && (
+            <ChatMessageBubble
+              role="assistant"
+              content={streamingText}
+              createdAt={new Date().toISOString()}
+            />
+          )}
+          {isStreaming && !streamingText && (
             <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
               <div className="flex gap-1">
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:0ms]" />
@@ -130,6 +118,11 @@ export default function ChatPage() {
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:300ms]" />
               </div>
               AI đang trả lời...
+            </div>
+          )}
+          {error && (
+            <div className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              Không thể nhận phản hồi từ AI. Vui lòng thử lại.
             </div>
           )}
           <div ref={bottomRef} />
@@ -140,7 +133,7 @@ export default function ChatPage() {
       <div className="border-t border-[var(--border)] bg-[var(--card)] px-4 pb-4 pt-3">
         <div className="mx-auto max-w-2xl space-y-3">
           <ChatSuggestionChips onSelect={handleSend} />
-          <ChatInput onSend={handleSend} disabled={mutation.isPending || !session} />
+          <ChatInput onSend={handleSend} disabled={isStreaming || !session} />
           <p className="text-center text-[10px] text-[var(--muted-foreground)]">
             AI có thể mắc sai sót. Vui lòng xác minh thông tin quan trọng trước khi đặt phòng.
           </p>

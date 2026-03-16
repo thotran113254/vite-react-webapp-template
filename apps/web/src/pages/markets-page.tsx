@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/use-auth";
+import { resolveImageUrl } from "@/components/market-data/image-manager";
 import type { Market } from "@app/shared";
 
 /** Markets list page: grid of market cards with search and add button. */
@@ -89,24 +90,32 @@ export default function MarketsPage() {
           {markets.map((market) => (
             <button
               key={market.id}
-              className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-5 text-left transition-shadow hover:shadow-md hover:border-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="rounded-lg border border-[var(--border)] bg-[var(--card)] overflow-hidden text-left transition-shadow hover:shadow-md hover:border-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
               onClick={() => navigate(`/markets/${market.id}`)}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-900/30">
-                  <Globe className="h-5 w-5 text-teal-600" />
+              {/* Cover image */}
+              {(market.images as string[])?.length > 0 ? (
+                <div className="aspect-[16/9] overflow-hidden bg-[var(--muted)]/20">
+                  <img src={resolveImageUrl((market.images as string[])[0]!)} alt={market.name}
+                    loading="lazy" className="h-full w-full object-cover" />
                 </div>
-                <Badge variant={STATUS_VARIANT[market.status] ?? "secondary"}>
-                  {market.status}
-                </Badge>
+              ) : (
+                <div className="aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20">
+                  <Globe className="h-10 w-10 text-teal-300" />
+                </div>
+              )}
+              <div className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-[var(--foreground)] line-clamp-1">{market.name}</h3>
+                  <Badge variant={STATUS_VARIANT[market.status] ?? "secondary"}>{market.status}</Badge>
+                </div>
+                {market.region && (
+                  <p className="mt-1 text-sm text-[var(--muted-foreground)]">{market.region}</p>
+                )}
+                {market.description && (
+                  <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-2">{market.description}</p>
+                )}
               </div>
-              <h3 className="mt-3 font-semibold text-[var(--foreground)] line-clamp-1">{market.name}</h3>
-              {market.region && (
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">{market.region}</p>
-              )}
-              {market.description && (
-                <p className="mt-2 text-xs text-[var(--muted-foreground)] line-clamp-2">{market.description}</p>
-              )}
             </button>
           ))}
         </div>

@@ -13,6 +13,7 @@ import {
   propertyRooms,
   roomPricing,
   pricingConfigs,
+  pricingOptions,
   itineraryTemplates,
   itineraryTemplateItems,
   aiDataSettings,
@@ -32,6 +33,9 @@ import {
   formatInventoryStrategies,
   formatCustomerJourneys,
   formatPricingRules,
+  setPricingOptionLabels,
+  formatPricingOptionDefinitions,
+  setPricingOptionConfigs,
 } from "./ai-context-format-helpers.js";
 
 // Simple in-memory cache (5 min TTL)
@@ -252,7 +256,7 @@ export async function buildAiContext(): Promise<string> {
     return cachedContext;
   }
 
-  const [settings, activeMarkets, allPricingConfigs] = await Promise.all([
+  const [settings, activeMarkets, allPricingConfigs, allPricingOptions] = await Promise.all([
     getAiSettings(),
     db
       .select()
@@ -262,7 +266,15 @@ export async function buildAiContext(): Promise<string> {
       .select()
       .from(pricingConfigs)
       .where(eq(pricingConfigs.aiVisible, true)),
+    db
+      .select()
+      .from(pricingOptions)
+      .where(and(eq(pricingOptions.isActive, true), eq(pricingOptions.aiVisible, true))),
   ]);
+
+  // Load dynamic labels and configs for combo/day types so formatters use admin-configured values
+  setPricingOptionLabels(allPricingOptions);
+  setPricingOptionConfigs(allPricingOptions);
 
   const sections: string[] = [];
 
@@ -275,6 +287,10 @@ export async function buildAiContext(): Promise<string> {
     );
     sections.push(section);
   }
+
+  // Add pricing option definitions so AI understands combo/day type mappings
+  const optionDefs = formatPricingOptionDefinitions();
+  if (optionDefs) sections.unshift(optionDefs);
 
   const result =
     sections.length > 0
