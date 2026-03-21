@@ -73,13 +73,14 @@ interface ToolResolveResult {
 async function resolveToolCalls(
   functionCalls: Array<{ name: string; args: Record<string, unknown> }>,
   userQuestion: string,
+  userRole: string,
   onToolCall?: (event: ToolCallEvent) => void,
 ): Promise<ToolResolveResult> {
   let cheapUsage = emptyUsage();
 
   const results = await Promise.all(
     functionCalls.map(async (fc) => {
-      let result = await executeToolCall(fc.name, fc.args);
+      let result = await executeToolCall(fc.name, fc.args, userRole);
       let usedSkill = false;
 
       if (needsProcessing(result)) {
@@ -113,6 +114,7 @@ async function resolveToolCalls(
 export async function* generateChatResponseStream(
   messages: ChatMessage[],
   catalog: string,
+  userRole: string,
   onToolCall?: (event: ToolCallEvent) => void,
   onUsage?: (usage: AggregatedUsage) => void,
 ): AsyncGenerator<string> {
@@ -163,6 +165,7 @@ export async function* generateChatResponseStream(
           args: (fc.args ?? {}) as Record<string, unknown>,
         })),
         userQuestion,
+        userRole,
         onToolCall,
       );
 
@@ -203,9 +206,10 @@ export async function* generateChatResponseStream(
 export async function generateChatResponse(
   messages: ChatMessage[],
   catalog: string,
+  userRole: string = "user",
 ): Promise<string> {
   let result = "";
-  for await (const text of generateChatResponseStream(messages, catalog)) {
+  for await (const text of generateChatResponseStream(messages, catalog, userRole)) {
     result += text;
   }
   return result;

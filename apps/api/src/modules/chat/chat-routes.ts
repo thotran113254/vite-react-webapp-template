@@ -88,6 +88,7 @@ chatRoutes.post("/sessions/:id/messages", async (c) => {
     c.req.param("id"),
     user.sub,
     dto.content,
+    user.role,
   );
   return c.json({ success: true, data: messages }, 201);
 });
@@ -134,7 +135,7 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
     };
 
     try {
-      const gen = generateChatResponseStream(history, catalog, onToolCall, (u: AggregatedUsage) => { aggregatedUsage = u; });
+      const gen = generateChatResponseStream(history, catalog, user.role, onToolCall, (u: AggregatedUsage) => { aggregatedUsage = u; });
       for await (const text of gen) {
         fullContent += text;
         await stream.writeSSE({

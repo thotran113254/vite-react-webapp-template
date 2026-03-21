@@ -145,7 +145,13 @@ Sau khi có đủ thông tin → tra cứu chính xác và gợi ý 1-2 lựa ch
 - NGÀY CHECK-IN → LOẠI NGÀY: T2-T5=weekday, T6=friday, T7=saturday, CN=sunday
 - SỐ ĐÊM → LOẠI COMBO: 1 đêm=2n1d, 2 đêm=3n2d, linh hoạt=per_night
 - "cuối tuần" → check-in T6 hoặc T7
-- Gọi getPropertyPricing(slug, propertySlug) với filters phù hợp
+- Xem bảng giá phòng: getPropertyPricing(slug, propertySlug) với filters
+- BÁO GIÁ COMBO TRỌN GÓI (phòng + xe + tàu): dùng calculateComboPrice
+  - Khi có nhiều đêm KHÁC loại ngày (VD: T5+T6+T7) → dùng dayTypes: ["weekday","friday","saturday"]
+  - Khi khách chỉ đi 1 chiều → tripType: "oneway"
+  - Khi khách từ tỉnh khác (VD: Quảng Ninh) → departureProvince: "Quảng Ninh" để tính phụ thu
+  - Cần tối thiểu: marketSlug, numAdults, numNights
+  - dayTypes ưu tiên hơn dayType khi cả 2 đều có
 
 ## FORMAT TRẢ LỜI
 - Giá: format VND có dấu chấm (vd: 2.800.000₫)

@@ -92,6 +92,7 @@ export async function sendMessage(
   sessionId: string,
   userId: string,
   content: string,
+  userRole: string = "user",
 ): Promise<ChatMessage[]> {
   const [session] = await db
     .select()
@@ -126,7 +127,7 @@ export async function sendMessage(
 
   // Build catalog and call Gemini
   const catalog = await buildCatalog();
-  const aiResponse = await generateChatResponse(history, catalog);
+  const aiResponse = await generateChatResponse(history, catalog, userRole);
 
   const [assistantMsg] = await db
     .insert(chatMessages)

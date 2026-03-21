@@ -66,20 +66,29 @@ const handlers: Record<string, (args: ToolArgs) => Promise<string>> = {
     fetchTransportPricing(args.slug as string, {
       category: args.category as string | undefined,
     }),
-
-  calculateComboPrice: (args) =>
-    fetchFormattedCombo({
-      marketSlug: args.marketSlug as string,
-      propertySlug: args.propertySlug as string | undefined,
-      numAdults: (args.numAdults as number) ?? 2,
-      numChildrenUnder10: (args.numChildrenUnder10 as number) ?? 0,
-      numChildrenUnder5: (args.numChildrenUnder5 as number) ?? 0,
-      numNights: (args.numNights as number) ?? 1,
-      dayType: (args.dayType as string) ?? "weekday",
-      transportClass: args.transportClass as string | undefined,
-      ferryClass: args.ferryClass as string | undefined,
-    }),
 };
+
+/** Role-aware handlers — receive userRole to show admin vs user pricing */
+function buildComboHandler(userRole: string) {
+  return (args: ToolArgs) =>
+    fetchFormattedCombo(
+      {
+        marketSlug: args.marketSlug as string,
+        propertySlug: args.propertySlug as string | undefined,
+        numAdults: (args.numAdults as number) ?? 2,
+        numChildrenUnder10: (args.numChildrenUnder10 as number) ?? 0,
+        numChildrenUnder5: (args.numChildrenUnder5 as number) ?? 0,
+        numNights: (args.numNights as number) ?? 1,
+        dayTypes: args.dayTypes as string[] | undefined,
+        dayType: (args.dayType as string) ?? "weekday",
+        transportClass: args.transportClass as string | undefined,
+        ferryClass: args.ferryClass as string | undefined,
+        tripType: args.tripType as "oneway" | "roundtrip" | undefined,
+        departureProvince: args.departureProvince as string | undefined,
+      },
+      userRole,
+    );
+}
 
 /**
  * Execute a tool call by name. Returns formatted data string.
@@ -88,7 +97,18 @@ const handlers: Record<string, (args: ToolArgs) => Promise<string>> = {
 export async function executeToolCall(
   name: string,
   args: ToolArgs,
+  userRole: string,
 ): Promise<string> {
+  // Role-aware tools
+  if (name === "calculateComboPrice") {
+    try {
+      return await buildComboHandler(userRole)(args);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Tool execution failed";
+      return `Error: ${msg}`;
+    }
+  }
+
   const handler = handlers[name];
   if (!handler) return `Unknown tool: ${name}`;
   try {

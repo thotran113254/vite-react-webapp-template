@@ -32,6 +32,11 @@ async function loadProfitMargin(marketId: string, override?: number): Promise<nu
 /** Normalize dayTypes: prefer dayTypes array, fall back to repeating dayType */
 function normalizeDayTypes(dto: ComboCalculateRequest): string[] {
   if (dto.dayTypes && dto.dayTypes.length > 0) {
+    if (dto.dayTypes.length !== dto.numNights) {
+      throw new Error(
+        `dayTypes length (${dto.dayTypes.length}) must equal numNights (${dto.numNights})`,
+      );
+    }
     return dto.dayTypes;
   }
   if (dto.dayType) {
