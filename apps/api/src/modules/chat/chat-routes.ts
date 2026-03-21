@@ -104,6 +104,7 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
     c.req.param("id"),
     user.sub,
     dto.content,
+    dto.images,
   );
 
   return streamSSE(c, async (stream) => {

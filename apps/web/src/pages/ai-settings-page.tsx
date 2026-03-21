@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PageSpinner } from "@/components/ui/spinner";
-import { PricingOptionsManager } from "@/components/market-data/pricing-options-manager";
+
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/use-auth";
 import { Navigate } from "react-router-dom";
@@ -146,7 +146,7 @@ function DataSettingsTab() {
           </div>
         ))}
       </div>
-      <div className="mt-8 pt-6 border-t border-[var(--border)]"><PricingOptionsManager /></div>
+      {/* Pricing options manager moved to /pricing page */}
     </>
   );
 }

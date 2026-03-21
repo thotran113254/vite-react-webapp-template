@@ -115,11 +115,63 @@ export async function fetchTransportPricing(
   return text;
 }
 
+// ─── Vietnamese day type labels ───────────────────────────────────────────────
+
+const DAYTYPE_LABELS: Record<string, string> = {
+  weekday: "Ngày thường", friday: "Thứ 6", saturday: "Thứ 7",
+  sunday: "Chủ nhật", holiday: "Ngày lễ",
+};
+
+function dayTypeToVi(dt: string): string { return DAYTYPE_LABELS[dt] ?? dt; }
+
+function dayTypesLabel(dayTypes: string[] | undefined, dayType: string | undefined): string {
+  if (dayTypes?.length) return dayTypes.map(dayTypeToVi).join(" → ");
+  return dayTypeToVi(dayType ?? "weekday");
+}
+
+// ─── Transport line formatter ────────────────────────────────────────────────
+
+function formatTransportLine(
+  t: import("@app/shared").ComboTransportLine,
+  label: string,
+  tripLabel: string,
+  isAdmin: boolean,
+): string {
+  let text = `\n${label} (${t.providerName} — ${t.vehicleClass}/${t.seatType} ${tripLabel}):\n`;
+
+  // Adult pricing
+  text += `  Người lớn: ${t.totalPeople - t.childFreeCount - t.childDiscountCount} ng × ${fmtVnd(t.pricePerPerson)}`;
+  if (isAdmin && t.discountPerPerson != null) text += ` (gốc: ${fmtVnd(t.discountPerPerson)})`;
+  text += "\n";
+
+  // Child pricing — show actual child price
+  if (t.childFreeCount > 0) {
+    text += `  Trẻ <5 tuổi: ${t.childFreeCount} bé — MIỄN PHÍ\n`;
+  }
+  if (t.childDiscountCount > 0) {
+    const childPrice = t.childPricePerPerson ?? t.pricePerPerson;
+    text += `  Trẻ 5-10 tuổi: ${t.childDiscountCount} bé × ${fmtVnd(childPrice)}/bé\n`;
+  }
+
+  // Cross-province surcharge — itemized separately
+  if (t.surchargeProvince && t.surchargePerPerson && t.surchargeTotal) {
+    const paying = t.totalPeople - t.childFreeCount;
+    text += `  Phụ thu liên tỉnh (${t.surchargeProvince}): ${paying} ng × ${fmtVnd(t.surchargePerPerson)} = ${fmtVnd(t.surchargeTotal)}\n`;
+  }
+
+  // Total
+  text += `  Tổng: ${fmtVnd(t.totalCost)}`;
+  if (isAdmin && t.totalDiscountCost != null) text += ` (gốc: ${fmtVnd(t.totalDiscountCost)})`;
+  text += "\n";
+
+  return text;
+}
+
 // ─── Combo Price Formatter ────────────────────────────────────────────────────
 
 /**
  * Calculate combo price and format as Vietnamese text for AI.
- * Uses listed prices only (role="user").
+ * Clear output for admin and sales staff.
  */
 export async function fetchFormattedCombo(
   input: ComboCalculateRequest,
@@ -135,90 +187,89 @@ export async function fetchFormattedCombo(
 
     const isAdmin = userRole === "admin";
     const tripLabel = input.tripType === "oneway" ? "1 chiều" : "khứ hồi";
-    const dayLabel = input.dayTypes?.length
-      ? input.dayTypes.join(", ")
-      : input.dayType ?? "weekday";
+    const dayLabel = dayTypesLabel(input.dayTypes, input.dayType);
+    const isMixedDay = (input.dayTypes?.length ?? 0) > 1
+      && new Set(input.dayTypes).size > 1;
 
+    // Header
     let text = `[BÁO GIÁ COMBO — ${numPeople} người, ${comboLabel}, ${tripLabel}]\n`;
     text += `Thị trường: ${input.marketSlug}`;
     if (input.propertySlug) text += ` | Cơ sở: ${input.propertySlug}`;
     text += ` | Loại ngày: ${dayLabel}`;
     if (input.departureProvince) text += ` | Khởi hành: ${input.departureProvince}`;
-    if (isAdmin) text += ` | Vai trò: ADMIN (hiển thị giá gốc)`;
+    if (isAdmin) text += ` | ADMIN (hiển thị giá gốc + margin)`;
     text += "\n";
+
+    // Guest breakdown
+    const guestParts: string[] = [`${input.numAdults} người lớn`];
+    if (input.numChildrenUnder10 > 0) guestParts.push(`${input.numChildrenUnder10} trẻ 5-10t`);
+    if (input.numChildrenUnder5 > 0) guestParts.push(`${input.numChildrenUnder5} trẻ <5t`);
+    text += `Khách: ${guestParts.join(", ")}\n`;
 
     // Rooms
     if (result.rooms.length > 0) {
-      text += "\nPHÒNG:\n";
+      text += "\n── PHÒNG ──\n";
       for (const r of result.rooms) {
-        const qty = r.quantity > 1 ? `${r.quantity}x ` : "";
-        text += `  ${qty}${r.roomType} (${r.guestsPerRoom} ng): ${fmtVnd(r.pricePerRoom)}/phòng`;
-        if (isAdmin && r.discountPricePerRoom != null) {
-          text += ` (gốc: ${fmtVnd(r.discountPricePerRoom)})`;
-        }
-        if (r.quantity > 1) text += ` × ${r.quantity} = ${fmtVnd(r.totalRoomCost)}`;
-        if (isAdmin && r.totalDiscountCost != null && r.quantity > 1) {
-          text += ` (gốc: ${fmtVnd(r.totalDiscountCost)})`;
+        const qty = r.quantity > 1 ? `${r.quantity}× ` : "";
+        const code = r.roomCode ? ` [${r.roomCode}]` : "";
+        text += `  ${qty}${r.roomType}${code} (${r.guestsPerRoom} ng/phòng)`;
+        if (isMixedDay) {
+          // Show total for multi-night mixed-day
+          text += `: ${fmtVnd(r.totalRoomCost)}/${numNights} đêm`;
+          if (isAdmin && r.totalDiscountCost != null) text += ` (gốc: ${fmtVnd(r.totalDiscountCost)})`;
+        } else {
+          text += `: ${fmtVnd(r.pricePerRoom)}/phòng`;
+          if (isAdmin && r.discountPricePerRoom != null) text += ` (gốc: ${fmtVnd(r.discountPricePerRoom)})`;
+          if (numNights > 1) text += ` × ${numNights} đêm`;
+          if (r.quantity > 1) text += ` × ${r.quantity} phòng`;
+          text += ` = ${fmtVnd(r.totalRoomCost)}`;
+          if (isAdmin && r.totalDiscountCost != null) text += ` (gốc: ${fmtVnd(r.totalDiscountCost)})`;
         }
         text += "\n";
       }
       const totalRooms = result.rooms.reduce((s, r) => s + r.totalRoomCost, 0);
       const totalDiscount = result.rooms.reduce((s, r) => s + (r.totalDiscountCost ?? 0), 0);
-      text += `  Tổng phòng: ${fmtVnd(totalRooms)}`;
+      text += `  → Tổng phòng: ${fmtVnd(totalRooms)}`;
       if (isAdmin && totalDiscount > 0) text += ` (gốc: ${fmtVnd(totalDiscount)})`;
       text += "\n";
     } else {
-      text += "\nPHÒNG: (Không tìm thấy phòng phù hợp)\n";
+      text += "\n── PHÒNG ──\n  (Không tìm thấy phòng phù hợp cho loại ngày đã chọn)\n";
     }
 
-    // Transport (bus)
+    // Transport (bus) — improved with child & surcharge details
     if (result.transport) {
-      const t = result.transport;
-      text += `\nVẬN CHUYỂN (${t.vehicleClass} ${tripLabel}):\n`;
-      if (t.childFreeCount > 0) {
-        text += `  ${t.childFreeCount} trẻ <5t: miễn phí\n`;
-      }
-      if (t.childDiscountCount > 0) {
-        text += `  ${t.childDiscountCount} trẻ 5-10t: giảm giá\n`;
-      }
-      const payingAdults = t.totalPeople - t.childFreeCount;
-      text += `  ${payingAdults} ng × ${fmtVnd(t.pricePerPerson)}`;
-      if (isAdmin && t.discountPerPerson != null) text += ` (gốc: ${fmtVnd(t.discountPerPerson)})`;
-      text += ` = ${fmtVnd(t.totalCost)}`;
-      if (isAdmin && t.totalDiscountCost != null) text += ` (gốc: ${fmtVnd(t.totalDiscountCost)})`;
-      text += "\n";
+      text += formatTransportLine(result.transport, "── VẬN CHUYỂN", tripLabel, isAdmin);
     }
 
-    // Ferry
+    // Ferry — improved
     if (result.ferry) {
-      const f = result.ferry;
-      text += `\nTÀU/FERRY (${f.vehicleClass} ${tripLabel}):\n`;
-      const payingFerry = f.totalPeople - f.childFreeCount;
-      text += `  ${payingFerry} ng × ${fmtVnd(f.pricePerPerson)}`;
-      if (isAdmin && f.discountPerPerson != null) text += ` (gốc: ${fmtVnd(f.discountPerPerson)})`;
-      text += ` = ${fmtVnd(f.totalCost)}`;
-      if (isAdmin && f.totalDiscountCost != null) text += ` (gốc: ${fmtVnd(f.totalDiscountCost)})`;
-      text += "\n";
+      text += formatTransportLine(result.ferry, "── TÀU/FERRY", tripLabel, isAdmin);
     }
 
     // Summary
-    text += `\nTỔNG (giá bán): ${fmtVnd(result.subtotal)}\n`;
+    text += "\n── TỔNG KẾT ──\n";
     if (isAdmin && result.discountSubtotal != null) {
-      text += `TỔNG (giá gốc): ${fmtVnd(result.discountSubtotal)}\n`;
+      text += `  Giá gốc: ${fmtVnd(result.discountSubtotal)}\n`;
+      text += `  Giá bán (trước margin): ${fmtVnd(result.subtotal)}\n`;
+      text += `  Biên lợi nhuận (${result.profitMarginPercent}%): +${fmtVnd(result.marginAmount)}\n`;
+      text += `  ★ GIÁ BÁN CUỐI: ${fmtVnd(result.grandTotal)}`;
+      if (result.discountGrandTotal != null) text += ` (gốc sau margin: ${fmtVnd(result.discountGrandTotal)})`;
+      text += "\n";
+      text += `  ★ GIÁ/NGƯỜI: ${fmtVnd(result.perPerson)}`;
+      if (result.discountPerPerson != null) text += ` (gốc: ${fmtVnd(result.discountPerPerson)})`;
+      text += "\n";
+    } else {
+      text += `  Tổng: ${fmtVnd(result.subtotal)}\n`;
+      if (result.profitMarginPercent > 0) {
+        text += `  ★ GIÁ BÁN: ${fmtVnd(result.grandTotal)}\n`;
+      }
+      text += `  ★ GIÁ/NGƯỜI: ${fmtVnd(result.perPerson)}\n`;
     }
-    if (result.profitMarginPercent > 0) {
-      text += `Biên lợi nhuận (${result.profitMarginPercent}%): +${fmtVnd(result.marginAmount)}\n`;
+
+    // Warnings
+    if (result.warnings?.length) {
+      text += `\n⚠ ${result.warnings.join("; ")}\n`;
     }
-    text += `TỔNG SAU MARGIN: ${fmtVnd(result.grandTotal)}`;
-    if (isAdmin && result.discountGrandTotal != null) {
-      text += ` (gốc: ${fmtVnd(result.discountGrandTotal)})`;
-    }
-    text += "\n";
-    text += `GIÁ/NGƯỜI: ${fmtVnd(result.perPerson)}`;
-    if (isAdmin && result.discountPerPerson != null) {
-      text += ` (gốc: ${fmtVnd(result.discountPerPerson)})`;
-    }
-    text += "\n";
 
     return text;
   } catch (err) {

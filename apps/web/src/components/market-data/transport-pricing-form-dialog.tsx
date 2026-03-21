@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export const VEHICLE_CLASSES = ["cabin", "limousine", "sleeper", "speed_boat", "small_boat"];
@@ -53,6 +54,9 @@ export function TransportPricingFormDialog({
 }: TransportPricingFormDialogProps) {
   const sf = (key: keyof TransportPricingFormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((s) => ({ ...s, [key]: e.target.value }));
+  /** Currency field setter */
+  const cf = (key: keyof TransportPricingFormState) => (v: string) =>
+    setForm((s) => ({ ...s, [key]: v }));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,22 +82,22 @@ export function TransportPricingFormDialog({
             <Input type="number" value={form.capacityPerUnit} onChange={sf("capacityPerUnit")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Giá 1 chiều (VND) *</label>
-            <Input type="number" value={form.onewayListedPrice} onChange={sf("onewayListedPrice")} />
+            <label className="text-sm font-medium">Giá 1 chiều *</label>
+            <CurrencyInput value={form.onewayListedPrice} onChange={cf("onewayListedPrice")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Giá 2 chiều (VND)</label>
-            <Input type="number" value={form.roundtripListedPrice} onChange={sf("roundtripListedPrice")} />
+            <label className="text-sm font-medium">Giá 2 chiều</label>
+            <CurrencyInput value={form.roundtripListedPrice} onChange={cf("roundtripListedPrice")} />
           </div>
           {isAdmin && (
             <>
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-orange-600">CK 1 chiều (VND)</label>
-                <Input type="number" value={form.onewayDiscountPrice} onChange={sf("onewayDiscountPrice")} />
+                <label className="text-sm font-medium text-orange-600">CK 1 chiều</label>
+                <CurrencyInput value={form.onewayDiscountPrice} onChange={cf("onewayDiscountPrice")} />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-orange-600">CK 2 chiều (VND)</label>
-                <Input type="number" value={form.roundtripDiscountPrice} onChange={sf("roundtripDiscountPrice")} />
+                <label className="text-sm font-medium text-orange-600">CK 2 chiều</label>
+                <CurrencyInput value={form.roundtripDiscountPrice} onChange={cf("roundtripDiscountPrice")} />
               </div>
             </>
           )}
@@ -106,8 +110,8 @@ export function TransportPricingFormDialog({
             <Input type="number" value={form.childDiscountUnder} onChange={sf("childDiscountUnder")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium">Mức giảm giá trẻ em (VND)</label>
-            <Input type="number" value={form.childDiscountAmount} onChange={sf("childDiscountAmount")} />
+            <label className="text-sm font-medium">Mức giảm giá trẻ em</label>
+            <CurrencyInput value={form.childDiscountAmount} onChange={cf("childDiscountAmount")} />
           </div>
           <div className="col-span-2 flex flex-col gap-1">
             <label className="text-sm font-medium">Dịch vụ trên xe</label>

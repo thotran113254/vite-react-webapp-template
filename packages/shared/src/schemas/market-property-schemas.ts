@@ -145,7 +145,7 @@ export const createPricingConfigSchema = z.object({
 });
 
 export const createPricingOptionSchema = z.object({
-  category: z.enum(["combo_type", "day_type"]),
+  category: z.enum(["combo_type", "day_type", "season"]),
   optionKey: z.string().min(1).max(50),
   label: z.string().min(1).max(100),
   description: z.string().optional(),

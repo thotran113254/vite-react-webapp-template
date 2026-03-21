@@ -23,6 +23,7 @@ const MarketsPage = lazy(() => import("@/pages/markets-page"));
 const MarketDetailPage = lazy(() => import("@/pages/market-detail-page"));
 const AiSettingsPage = lazy(() => import("@/pages/ai-settings-page"));
 const ComboCalculatorPage = lazy(() => import("@/pages/combo-calculator-page"));
+const PricingManagementPage = lazy(() => import("@/pages/pricing-management-page"));
 
 function PageLoader() {
   return (
@@ -65,6 +66,7 @@ export function App() {
               <Route path="/markets/:id" element={<MarketDetailPage />} />
               <Route path="/settings/ai" element={<AiSettingsPage />} />
               <Route path="/combo-calculator" element={<ComboCalculatorPage />} />
+              <Route path="/pricing" element={<PricingManagementPage />} />
             </Route>
           </Route>
 

@@ -109,7 +109,7 @@ export function TransportPricingEditor({ providerId, isAdmin }: TransportPricing
   const colSpan = isAdmin ? 8 : 6;
 
   return (
-    <div className="ml-8 mt-2 mb-4 space-y-2">
+    <div className="mt-1 mb-2 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Bảng giá vé</p>
         {isAdmin && (

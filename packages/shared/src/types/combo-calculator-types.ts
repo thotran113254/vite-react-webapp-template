@@ -53,9 +53,15 @@ export interface ComboTransportLine {
   seatType: string;
   pricePerPerson: number;
   discountPerPerson: number | null;
+  /** Actual price per child (after discount) */
+  childPricePerPerson: number | null;
   totalPeople: number;
   childFreeCount: number;
   childDiscountCount: number;
   totalCost: number;
   totalDiscountCost: number | null;
+  /** Cross-province surcharge details (null if none) */
+  surchargeProvince: string | null;
+  surchargePerPerson: number | null;
+  surchargeTotal: number | null;
 }

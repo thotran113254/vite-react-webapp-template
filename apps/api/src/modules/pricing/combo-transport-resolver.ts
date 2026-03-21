@@ -61,6 +61,9 @@ export async function resolveTransportLine(
   const childDiscountCount = numChildrenUnder10;
   const totalPeople = numAdults + numChildrenUnder10 + numChildrenUnder5;
 
+  const childPricePerPerson = childDiscountCount > 0
+    ? Math.max(0, basePrice - discountAmt) : null;
+
   const adultCost = numAdults * basePrice;
   const childDiscountCost = childDiscountCount * Math.max(0, basePrice - discountAmt);
   let totalCost = adultCost + childDiscountCost;
@@ -72,14 +75,19 @@ export async function resolveTransportLine(
     totalDiscountCost = adultDiscountCost + childDiscountCostAdj;
   }
 
-  // FIX 4: Cross-province surcharge
+  // Cross-province surcharge — track separately for output clarity
+  let surchargeProvince: string | null = null;
+  let surchargePerPerson: number | null = null;
+  let surchargeTotal: number | null = null;
+
   if (departureProvince && tp.crossProvinceSurcharges) {
     const surcharges = tp.crossProvinceSurcharges as Array<{ province: string; surcharge: number }>;
     const match = surcharges.find((s) => s.province === departureProvince);
     if (match) {
-      // Surcharge applies to paying passengers (adults + children over 5)
       const payingPassengers = numAdults + numChildrenUnder10;
-      const surchargeTotal = match.surcharge * payingPassengers;
+      surchargeProvince = match.province;
+      surchargePerPerson = match.surcharge;
+      surchargeTotal = match.surcharge * payingPassengers;
       totalCost += surchargeTotal;
       if (totalDiscountCost !== null) totalDiscountCost += surchargeTotal;
     }
@@ -91,10 +99,14 @@ export async function resolveTransportLine(
     seatType: tp.seatType,
     pricePerPerson: basePrice,
     discountPerPerson: isAdmin ? baseDiscount : null,
+    childPricePerPerson,
     totalPeople,
     childFreeCount,
     childDiscountCount,
     totalCost,
     totalDiscountCost: isAdmin ? totalDiscountCost : null,
+    surchargeProvince,
+    surchargePerPerson,
+    surchargeTotal,
   };
 }

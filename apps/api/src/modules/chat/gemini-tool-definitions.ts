@@ -255,6 +255,24 @@ const calculateComboPrice: FunctionDeclaration = {
   },
 };
 
+const getDateInfo: FunctionDeclaration = {
+  name: "getDateInfo",
+  description:
+    "Kiểm tra ngày cụ thể: thứ trong tuần, loại ngày (weekday/friday/saturday/sunday/holiday), có phải ngày lễ không. LUÔN dùng tool này khi sale cung cấp ngày check-in để xác định chính xác loại ngày trước khi tính giá. Hỗ trợ kiểm tra nhiều ngày cùng lúc (cho lịch trình nhiều đêm).",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      dates: {
+        type: Type.ARRAY,
+        description:
+          "Danh sách ngày cần kiểm tra, format mỗi ngày: YYYY-MM-DD hoặc DD/MM/YYYY. VD: ['2026-03-25', '2026-03-26'] hoặc ['25/03/2026']",
+        items: { type: Type.STRING },
+      },
+    },
+    required: ["dates"],
+  },
+};
+
 /** All tool declarations for Gemini function calling */
 export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
   getMarketOverview,
@@ -268,6 +286,7 @@ export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
   searchKnowledgeBase,
   getTransportPricing,
   calculateComboPrice,
+  getDateInfo,
 ];
 
 /** Tools config object for Gemini SDK */

@@ -62,7 +62,7 @@ function proxyToApi(req, res) {
 }
 
 const server = createServer((req, res) => {
-  if (req.url.startsWith("/api/") || req.url === "/health") {
+  if (req.url.startsWith("/api/") || req.url.startsWith("/uploads/") || req.url === "/health") {
     proxyToApi(req, res);
   } else {
     serveStatic(res, req.url);

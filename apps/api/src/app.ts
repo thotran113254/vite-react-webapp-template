@@ -31,8 +31,9 @@ export function createApp(): Hono {
     }),
   );
 
-  // Request body size limit: 6MB for uploads, 1MB default
+  // Request body size limit: 6MB for uploads and chat (images), 1MB default
   app.use("/api/v1/upload/*", bodyLimit({ maxSize: 6 * 1024 * 1024 }));
+  app.use("/api/v1/chat/*", bodyLimit({ maxSize: 6 * 1024 * 1024 }));
   app.use("*", bodyLimit({ maxSize: 1024 * 1024 }));
 
   // Rate limiting

@@ -10,6 +10,7 @@ import {
   Globe,
   Settings,
   Calculator,
+  Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/profile", label: "Hồ sơ", icon: UserCircle, section: "Cài đặt" },
   // Admin section
   { to: "/markets", label: "Thị trường", icon: Globe, adminOnly: true, section: "Quản trị" },
+  { to: "/pricing", label: "Quản lý giá", icon: Banknote, adminOnly: true },
   { to: "/knowledge-base", label: "Cơ sở tri thức", icon: BookOpen, adminOnly: true },
   { to: "/settings/ai", label: "Cài đặt AI", icon: Settings, adminOnly: true },
   { to: "/users", label: "Người dùng", icon: Users, adminOnly: true },

@@ -13,6 +13,7 @@ import {
   fetchCompareProperties,
   fetchSearchProperties,
 } from "../market-data/ai-comparison-fetchers.js";
+import { getDateInfoFormatted } from "./date-info-handler.js";
 
 type ToolArgs = Record<string, unknown>;
 
@@ -103,6 +104,16 @@ export async function executeToolCall(
   if (name === "calculateComboPrice") {
     try {
       return await buildComboHandler(userRole)(args);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Tool execution failed";
+      return `Error: ${msg}`;
+    }
+  }
+
+  // Date info tool — no role dependency
+  if (name === "getDateInfo") {
+    try {
+      return getDateInfoFormatted(args.dates as string[]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Tool execution failed";
       return `Error: ${msg}`;

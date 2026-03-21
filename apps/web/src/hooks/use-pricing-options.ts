@@ -16,13 +16,23 @@ export function usePricingOptions() {
   const all = data ?? [];
   const comboOptions = all.filter((o) => o.category === "combo_type" && o.isActive);
   const dayOptions = all.filter((o) => o.category === "day_type" && o.isActive);
+  const seasonOptions = all.filter((o) => o.category === "season" && o.isActive);
 
   // Build label lookup maps
   const comboMap = new Map(comboOptions.map((o) => [o.optionKey, o.label]));
   const dayMap = new Map(dayOptions.map((o) => [o.optionKey, o.label]));
+  const seasonMap = new Map(seasonOptions.map((o) => [o.optionKey, o.label]));
 
   const comboLabel = (key: string) => comboMap.get(key) ?? key;
   const dayLabel = (key: string) => dayMap.get(key) ?? key;
+  const seasonLabel = (key: string) => (key === "default" ? "Mặc định" : seasonMap.get(key) ?? key);
 
-  return { comboOptions, dayOptions, comboLabel, dayLabel, all, isLoading };
+  /** Get season date range from config JSONB: { startDate: "MM-DD", endDate: "MM-DD" } */
+  const seasonDateRange = (key: string) => {
+    const opt = seasonOptions.find((o) => o.optionKey === key);
+    const cfg = opt?.config as { startDate?: string; endDate?: string } | undefined;
+    return cfg ? { startDate: cfg.startDate ?? "", endDate: cfg.endDate ?? "" } : null;
+  };
+
+  return { comboOptions, dayOptions, seasonOptions, comboLabel, dayLabel, seasonLabel, seasonDateRange, all, isLoading };
 }

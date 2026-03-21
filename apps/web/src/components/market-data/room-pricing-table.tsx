@@ -17,7 +17,7 @@ import type { PropertyRoom, RoomPricing } from "@app/shared";
 /** Pricing management table for a single room with full CRUD. */
 export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: boolean }) {
   const queryClient = useQueryClient();
-  const { comboOptions, dayOptions, comboLabel, dayLabel, isLoading: optionsLoading } = usePricingOptions();
+  const { comboOptions, dayOptions, seasonOptions, comboLabel, dayLabel, seasonLabel, isLoading: optionsLoading } = usePricingOptions();
   const [pricingDialog, setPricingDialog] = useState(false);
   const [editPricing, setEditPricing] = useState<RoomPricing | null>(null);
   const [pForm, setPForm] = useState<RoomPricingFormState>(EMPTY_ROOM_PRICING);
@@ -37,6 +37,7 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
     mutationFn: async () => {
       const payload = {
         comboType: pForm.comboType, dayType: pForm.dayType,
+        seasonName: pForm.seasonName || "default",
         standardGuests: Number(pForm.standardGuests), price: Number(pForm.price),
         pricePlus1: pForm.pricePlus1 ? Number(pForm.pricePlus1) : null,
         priceMinus1: pForm.priceMinus1 ? Number(pForm.priceMinus1) : null,
@@ -73,6 +74,7 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
       ...EMPTY_ROOM_PRICING,
       comboType: comboOptions[0]?.optionKey ?? "",
       dayType: dayOptions[0]?.optionKey ?? "",
+      seasonName: "default",
       standardGuests: String(room.capacity),
     });
     setPricingDialog(true);
@@ -81,7 +83,7 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
   const openEdit = (p: RoomPricing) => {
     setEditPricing(p);
     setPForm({
-      comboType: p.comboType, dayType: p.dayType,
+      comboType: p.comboType, dayType: p.dayType, seasonName: p.seasonName || "default",
       standardGuests: String(p.standardGuests), price: String(p.price),
       pricePlus1: p.pricePlus1 ? String(p.pricePlus1) : "",
       priceMinus1: p.priceMinus1 ? String(p.priceMinus1) : "",
@@ -105,12 +107,17 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
   };
 
   const pricings = data ?? [];
-  const grouped = new Map<string, RoomPricing[]>();
+  /* Group: season → combo → prices */
+  const bySeason = new Map<string, Map<string, RoomPricing[]>>();
   for (const p of pricings) {
-    const arr = grouped.get(p.comboType) ?? [];
+    const sKey = p.seasonName || "default";
+    if (!bySeason.has(sKey)) bySeason.set(sKey, new Map());
+    const comboMap = bySeason.get(sKey)!;
+    const arr = comboMap.get(p.comboType) ?? [];
     arr.push(p);
-    grouped.set(p.comboType, arr);
+    comboMap.set(p.comboType, arr);
   }
+  const hasMultipleSeasons = bySeason.size > 1;
 
   if (isLoading || optionsLoading) return <Spinner size="sm" />;
 
@@ -127,40 +134,47 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
 
       {pricings.length === 0 && <p className="text-xs text-[var(--muted-foreground)]">Chưa có bảng giá</p>}
 
-      {Array.from(grouped.entries()).map(([combo, prices]) => (
-        <div key={combo}>
-          <p className="text-xs font-semibold text-teal-700 mb-1">{comboLabel(combo)}</p>
-          <div className="grid grid-cols-4 gap-1 text-xs">
-            {prices.sort((a, b) => (a.dayType > b.dayType ? 1 : -1)).map((p) => (
-              <div key={p.id} className="flex flex-col gap-0.5 rounded bg-[var(--muted)]/30 px-2 py-1 group">
-                <div className="flex items-center gap-1">
-                  <span className="text-[var(--muted-foreground)]">{dayLabel(p.dayType)}:</span>
-                  <span className="font-medium text-[var(--foreground)]">{fmtVnd(p.price)}</span>
-                  {isAdmin && (
-                    <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100">
-                      <button className="text-[var(--muted-foreground)] hover:text-teal-600" onClick={() => openEdit(p)}><Pencil className="h-2.5 w-2.5" /></button>
-                      <button className="text-[var(--muted-foreground)] hover:text-red-600" onClick={() => setDeleteTarget(p)}><Trash2 className="h-2.5 w-2.5" /></button>
+      {Array.from(bySeason.entries()).map(([season, comboMap]) => (
+        <div key={season} className={hasMultipleSeasons ? "border-l-2 border-teal-200 pl-2 mb-2" : ""}>
+          {hasMultipleSeasons && (
+            <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider mb-1">{seasonLabel(season)}</p>
+          )}
+          {Array.from(comboMap.entries()).map(([combo, prices]) => (
+            <div key={combo} className="mb-1">
+              <p className="text-xs font-semibold text-teal-700 mb-1">{comboLabel(combo)}</p>
+              <div className="grid grid-cols-4 gap-1 text-xs">
+                {prices.sort((a, b) => (a.dayType > b.dayType ? 1 : -1)).map((p) => (
+                  <div key={p.id} className="flex flex-col gap-0.5 rounded bg-[var(--muted)]/30 px-2 py-1 group">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[var(--muted-foreground)]">{dayLabel(p.dayType)}:</span>
+                      <span className="font-medium text-[var(--foreground)]">{fmtVnd(p.price)}</span>
+                      {isAdmin && (
+                        <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100">
+                          <button className="text-[var(--muted-foreground)] hover:text-teal-600" onClick={() => openEdit(p)}><Pencil className="h-2.5 w-2.5" /></button>
+                          <button className="text-[var(--muted-foreground)] hover:text-red-600" onClick={() => setDeleteTarget(p)}><Trash2 className="h-2.5 w-2.5" /></button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                {isAdmin && p.discountPrice != null && (
-                  <span className="text-orange-500 text-[10px]">CK: {fmtVnd(p.discountPrice)}</span>
-                )}
-                {p.underStandardPrice != null && (
-                  <span className="text-blue-500 text-[10px]">Dưới TC: {fmtVnd(p.underStandardPrice)}</span>
-                )}
-                {p.extraAdultSurcharge != null && (
-                  <span className="text-[var(--muted-foreground)] text-[10px]">+NL: {fmtVnd(p.extraAdultSurcharge)}</span>
-                )}
-                {p.extraChildSurcharge != null && (
-                  <span className="text-[var(--muted-foreground)] text-[10px]">+TE: {fmtVnd(p.extraChildSurcharge)}</span>
-                )}
-                {p.includedAmenities && (
-                  <span className="text-green-600 text-[10px] truncate" title={p.includedAmenities}>{p.includedAmenities}</span>
-                )}
+                    {isAdmin && p.discountPrice != null && (
+                      <span className="text-orange-500 text-[10px]">CK: {fmtVnd(p.discountPrice)}</span>
+                    )}
+                    {p.underStandardPrice != null && (
+                      <span className="text-blue-500 text-[10px]">Dưới TC: {fmtVnd(p.underStandardPrice)}</span>
+                    )}
+                    {p.extraAdultSurcharge != null && (
+                      <span className="text-[var(--muted-foreground)] text-[10px]">+NL: {fmtVnd(p.extraAdultSurcharge)}</span>
+                    )}
+                    {p.extraChildSurcharge != null && (
+                      <span className="text-[var(--muted-foreground)] text-[10px]">+TE: {fmtVnd(p.extraChildSurcharge)}</span>
+                    )}
+                    {p.includedAmenities && (
+                      <span className="text-green-600 text-[10px] truncate" title={p.includedAmenities}>{p.includedAmenities}</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       ))}
 
@@ -176,6 +190,7 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
         saveError={saveError}
         comboOptions={comboOptions}
         dayOptions={dayOptions}
+        seasonOptions={seasonOptions}
       />
 
       <ConfirmDialog

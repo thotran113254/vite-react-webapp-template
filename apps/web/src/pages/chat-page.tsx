@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState, type UIEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bot, PanelLeftOpen, PanelLeftClose } from "lucide-react";
+import { Bot, PanelLeftOpen, PanelLeftClose, Copy, Check } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { useChatStream } from "@/hooks/use-chat-stream";
 import { ChatMessageBubble } from "@/components/chat/chat-message-bubble";
@@ -12,6 +12,23 @@ import type { ChatSession, ChatMessage } from "@app/shared";
 
 interface ApiList<T> { data: T[] }
 interface ApiItem<T> { data: T }
+
+/** Tiny button to copy session ID for debugging */
+function SessionIdCopy({ sessionId }: { sessionId: string }) {
+  const [copied, setCopied] = useState(false);
+  const shortId = sessionId.slice(0, 8);
+  return (
+    <button
+      type="button"
+      title={`Copy Session ID: ${sessionId}`}
+      onClick={() => { navigator.clipboard.writeText(sessionId); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+      className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+    >
+      {shortId}
+      {copied ? <Check size={10} className="text-green-500" /> : <Copy size={10} />}
+    </button>
+  );
+}
 
 const TOOL_LABELS: Record<string, string> = {
   getMarketOverview: "thông tin thị trường",
@@ -110,9 +127,18 @@ export default function ChatPage() {
     onComplete: onStreamComplete,
   });
 
-  function handleSend(content: string) {
+  // Sync messages from server when streaming ends (safety net for missed ai-complete)
+  const prevStreamingRef = useRef(false);
+  useEffect(() => {
+    if (prevStreamingRef.current && !isStreaming && activeSessionId) {
+      queryClient.invalidateQueries({ queryKey: ["chat-messages", activeSessionId] });
+    }
+    prevStreamingRef.current = isStreaming;
+  }, [isStreaming, activeSessionId, queryClient]);
+
+  function handleSend(content: string, images?: string[]) {
     if (!activeSessionId || isStreaming) return;
-    send(activeSessionId, content);
+    send(activeSessionId, content, images);
   }
 
   function handleSelectSession(session: ChatSession) {
@@ -187,6 +213,8 @@ export default function ChatPage() {
               Online
             </span>
           </div>
+          {/* Session ID copy button for debugging */}
+          {activeSessionId && <SessionIdCopy sessionId={activeSessionId} />}
         </div>
 
         {/* Messages */}
@@ -204,6 +232,8 @@ export default function ChatPage() {
             )}
             {serverMessages.map((msg) => {
               const meta = msg.metadata as Record<string, unknown> | undefined;
+              const msgImages = meta?.images as string[] | undefined;
+              const hadImages = !msgImages?.length && meta?.hasImages === true;
               const savedUsage = meta?.costBreakdown
                 ? {
                     costBreakdown: meta.costBreakdown,
@@ -218,6 +248,8 @@ export default function ChatPage() {
                     role={msg.role === "system" ? "assistant" : msg.role}
                     content={msg.content}
                     createdAt={msg.createdAt}
+                    images={msgImages}
+                    hadImages={hadImages}
                   />
                   {savedUsage && <ChatTokenUsage usage={savedUsage} />}
                 </div>
@@ -229,6 +261,7 @@ export default function ChatPage() {
                 role="user"
                 content={pendingUserMessage.content}
                 createdAt={pendingUserMessage.createdAt}
+                images={pendingUserMessage.images}
               />
             )}
             {isStreaming && streamingText && (

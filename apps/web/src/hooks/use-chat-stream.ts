@@ -58,7 +58,7 @@ interface UseChatStreamOptions {
 }
 
 interface UseChatStreamReturn {
-  send: (sessionId: string, content: string) => void;
+  send: (sessionId: string, content: string, images?: string[]) => void;
   /** Buffered streaming text displayed to user (flushed at ~20fps) */
   streamingText: string;
   isStreaming: boolean;
@@ -66,7 +66,7 @@ interface UseChatStreamReturn {
   /** Token usage from last completed message */
   lastUsage: TokenUsageInfo | null;
   /** Optimistic user message shown immediately while waiting for SSE */
-  pendingUserMessage: ChatMessage | null;
+  pendingUserMessage: (ChatMessage & { images?: string[] }) | null;
   /** Tool calls fired during the current streaming response */
   toolCalls: ToolCallInfo[];
 }
@@ -121,7 +121,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
   // Cleanup on unmount
   useEffect(() => () => stopFlushing(), []);
 
-  const send = useCallback((sessionId: string, content: string) => {
+  const send = useCallback((sessionId: string, content: string, images?: string[]) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -133,8 +133,9 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
     setIsStreaming(true);
     setError(null);
     setToolCalls([]);
+    let completed = false;
 
-    // Show user message immediately (optimistic)
+    // Show user message immediately (optimistic) — include images for display
     setPendingUserMessage({
       id: `pending-${Date.now()}`,
       sessionId,
@@ -142,6 +143,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
       content,
       metadata: {},
       createdAt: new Date().toISOString(),
+      ...(images?.length ? { images } : {}),
     });
 
     const baseUrl = import.meta.env.VITE_API_URL ?? "/api/v1";
@@ -153,7 +155,7 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, ...(images?.length ? { images } : {}) }),
       signal: controller.signal,
     })
       .then(async (res) => {
@@ -165,8 +167,9 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
         const decoder = new TextDecoder();
         let sseBuffer = "";
         let userMsg: ChatMessage | null = null;
+        // Persist across chunks so event: in one chunk pairs with data: in the next
+        let currentEvent = "";
 
-        // Start periodic flushing once we begin receiving data
         startFlushing();
 
         while (true) {
@@ -175,11 +178,9 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
 
           sseBuffer += decoder.decode(value, { stream: true });
 
-          // Parse SSE lines
           const lines = sseBuffer.split("\n");
           sseBuffer = lines.pop() ?? "";
 
-          let currentEvent = "";
           for (const line of lines) {
             if (line.startsWith("event:")) {
               currentEvent = line.slice(6).trim();
@@ -199,16 +200,19 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
                   const toolData = data as ToolCallInfo;
                   setToolCalls((prev) => [...prev, toolData]);
                 } else if (currentEvent === "ai-complete") {
-                  // Final flush before completing
+                  completed = true;
                   flushRemaining();
-                  setToolCalls([]);
                   const { costBreakdown, turn, durationMs, hasThinking, ...msgData } = data;
                   const assistantMsg = msgData as ChatMessage;
                   const usage = costBreakdown
                     ? { costBreakdown, turn, durationMs, hasThinking } as TokenUsageInfo
                     : undefined;
                   if (usage) setLastUsage(usage);
+                  // Batch all cleanup + query update in one React render cycle
+                  setToolCalls([]);
                   setPendingUserMessage(null);
+                  setStreamingText("");
+                  setIsStreaming(false);
                   if (userMsg) onComplete?.(userMsg, assistantMsg, usage);
                 } else if (currentEvent === "error") {
                   throw new Error(data.error ?? "Stream error");
@@ -221,8 +225,8 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
           }
         }
 
-        // Ensure final content is flushed if stream ends without ai-complete
-        flushRemaining();
+        // Only flush if ai-complete was never received (abnormal stream end)
+        if (!completed) flushRemaining();
       })
       .catch((err) => {
         stopFlushing();
@@ -234,7 +238,11 @@ export function useChatStream({ onComplete, onError }: UseChatStreamOptions = {}
       })
       .finally(() => {
         stopFlushing();
-        setIsStreaming(false);
+        // Safety net: only reset if ai-complete handler didn't already do it
+        if (!completed) {
+          setIsStreaming(false);
+          setPendingUserMessage(null);
+        }
       });
   }, [onComplete, onError]);
 

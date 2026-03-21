@@ -36,11 +36,29 @@ function getClient(): GoogleGenAI {
 
 // ─── History conversion ───────────────────────────────────────────────────────
 
+/** Parse data:image/png;base64,... into inline data Part */
+function parseImageDataUrl(dataUrl: string): Part | null {
+  const match = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/s);
+  if (!match) return null;
+  return { inlineData: { mimeType: match[1]!, data: match[2]! } };
+}
+
 function toContents(messages: ChatMessage[]): Content[] {
-  return messages.map((m) => ({
-    role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
-    parts: [{ text: m.content }],
-  }));
+  return messages.map((m) => {
+    const parts: Part[] = [{ text: m.content }];
+    // Add image parts from metadata (if this message had images)
+    const images = (m as unknown as Record<string, unknown>).images as string[] | undefined;
+    if (images?.length) {
+      for (const img of images) {
+        const part = parseImageDataUrl(img);
+        if (part) parts.push(part);
+      }
+    }
+    return {
+      role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
+      parts,
+    };
+  });
 }
 
 // ─── Thinking level mapping ──────────────────────────────────────────────────

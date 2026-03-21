@@ -5,6 +5,7 @@ import { chatSessions, chatMessages } from "../../db/schema/index.js";
 import type { ChatSession, ChatMessage } from "@app/shared";
 import { generateChatResponse } from "./gemini-service.js";
 import { buildCatalog } from "../market-data/ai-context-builder.js";
+import { saveImagesToDisk, urlsToBase64 } from "./chat-image-storage.js";
 
 const MAX_HISTORY_MESSAGES = 30;
 
@@ -143,9 +144,10 @@ export async function prepareStreamContext(
   sessionId: string,
   userId: string,
   content: string,
+  images?: string[],
 ): Promise<{
   userMsg: ChatMessage;
-  history: Array<{ role: "user" | "assistant"; content: string }>;
+  history: Array<{ role: "user" | "assistant"; content: string; images?: string[] }>;
   catalog: string;
 }> {
   const [session] = await db
@@ -158,10 +160,16 @@ export async function prepareStreamContext(
   if (session.userId !== userId)
     throw new HTTPException(403, { message: "Access denied" });
 
-  // Store user message
+  // Save images to disk, store only URL paths in metadata (~50 bytes vs ~200KB per image)
+  const metadata: Record<string, unknown> = {};
+  if (images?.length) {
+    const urls = await saveImagesToDisk(images);
+    if (urls.length > 0) metadata.images = urls;
+  }
+
   const [userMsg] = await db
     .insert(chatMessages)
-    .values({ sessionId, role: "user", content, metadata: {} })
+    .values({ sessionId, role: "user", content, metadata })
     .returning();
 
   // Fetch conversation history
@@ -179,9 +187,19 @@ export async function prepareStreamContext(
     ? allMapped.slice(-MAX_HISTORY_MESSAGES)
     : allMapped;
 
+  // For Gemini: convert image URL paths to base64 data URLs for the current message
+  const imageUrls = metadata.images as string[] | undefined;
+  const geminiImages = imageUrls?.length ? await urlsToBase64(imageUrls) : undefined;
+  const historyWithImages = history.map((m, i) => {
+    if (i === history.length - 1 && geminiImages?.length) {
+      return { ...m, images: geminiImages };
+    }
+    return m;
+  });
+
   const catalog = await buildCatalog();
 
-  return { userMsg: toMessage(userMsg!), history, catalog };
+  return { userMsg: toMessage(userMsg!), history: historyWithImages, catalog };
 }
 
 /** Save complete AI response with optional token usage metadata */
