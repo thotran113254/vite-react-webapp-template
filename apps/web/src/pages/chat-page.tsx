@@ -112,6 +112,21 @@ export default function ChatPage() {
     },
   });
 
+  // Update session (rename / pin)
+  const updateMutation = useMutation({
+    mutationFn: async ({ sessionId, updates }: { sessionId: string; updates: { title?: string; isPinned?: boolean } }) => {
+      const res = await apiClient.patch<ApiItem<ChatSession>>(`/chat/sessions/${sessionId}`, updates);
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
+    },
+  });
+
+  function handleUpdateSession(sessionId: string, updates: { title?: string; isPinned?: boolean }) {
+    updateMutation.mutate({ sessionId, updates });
+  }
+
   // Streaming
   const onStreamComplete = useCallback(
     (userMsg: ChatMessage, assistantMsg: ChatMessage) => {
@@ -127,11 +142,13 @@ export default function ChatPage() {
     onComplete: onStreamComplete,
   });
 
-  // Sync messages from server when streaming ends (safety net for missed ai-complete)
+  // Sync messages + sessions from server when streaming ends
   const prevStreamingRef = useRef(false);
   useEffect(() => {
     if (prevStreamingRef.current && !isStreaming && activeSessionId) {
       queryClient.invalidateQueries({ queryKey: ["chat-messages", activeSessionId] });
+      // Refresh session list to pick up auto-generated titles
+      queryClient.invalidateQueries({ queryKey: ["chat-sessions"] });
     }
     prevStreamingRef.current = isStreaming;
   }, [isStreaming, activeSessionId, queryClient]);
@@ -185,6 +202,7 @@ export default function ChatPage() {
           onSelect={handleSelectSession}
           onNew={() => createMutation.mutate()}
           onDelete={(id) => deleteMutation.mutate(id)}
+          onUpdate={handleUpdateSession}
           isCreating={createMutation.isPending}
         />
       )}

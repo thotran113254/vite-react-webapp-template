@@ -3,6 +3,7 @@ import {
   uuid,
   varchar,
   timestamp,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { users } from "./users-schema";
@@ -15,6 +16,7 @@ export const chatSessions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     title: varchar("title", { length: 255 }).notNull().default("New Chat"),
+    isPinned: boolean("is_pinned").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

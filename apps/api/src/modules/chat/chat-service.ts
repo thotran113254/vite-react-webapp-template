@@ -14,8 +14,44 @@ function toSession(row: typeof chatSessions.$inferSelect): ChatSession {
     id: row.id,
     userId: row.userId,
     title: row.title,
+    isPinned: row.isPinned,
     createdAt: row.createdAt.toISOString(),
   };
+}
+
+/** Update session title and/or pin state */
+export async function updateSession(
+  id: string,
+  userId: string,
+  updates: { title?: string; isPinned?: boolean },
+): Promise<ChatSession> {
+  const [session] = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, id))
+    .limit(1);
+  if (!session) throw new HTTPException(404, { message: "Session not found" });
+  if (session.userId !== userId)
+    throw new HTTPException(403, { message: "Access denied" });
+
+  const setValues: Record<string, unknown> = {};
+  if (updates.title !== undefined) setValues.title = updates.title;
+  if (updates.isPinned !== undefined) setValues.isPinned = updates.isPinned;
+
+  const [updated] = await db
+    .update(chatSessions)
+    .set(setValues)
+    .where(eq(chatSessions.id, id))
+    .returning();
+  return toSession(updated!);
+}
+
+/** Auto-generate session title from first user message using a simple heuristic */
+export function generateTitleFromMessage(content: string): string {
+  // Take first 50 chars, clean up
+  const clean = content.replace(/\n/g, " ").trim();
+  if (clean.length <= 40) return clean;
+  return clean.slice(0, 40).replace(/\s+\S*$/, "") + "...";
 }
 
 function toMessage(row: typeof chatMessages.$inferSelect): ChatMessage {

@@ -67,6 +67,16 @@ chatRoutes.post("/sessions", async (c) => {
   return c.json({ success: true, data: session }, 201);
 });
 
+chatRoutes.patch("/sessions/:id", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json();
+  const session = await chatService.updateSession(c.req.param("id"), user.sub, {
+    title: body.title as string | undefined,
+    isPinned: body.isPinned as boolean | undefined,
+  });
+  return c.json({ success: true, data: session });
+});
+
 chatRoutes.delete("/sessions/:id", async (c) => {
   const user = c.get("user");
   await chatService.deleteSession(c.req.param("id"), user.sub);
@@ -116,6 +126,9 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
       event: "user-message",
       id: String(chunkId++),
     });
+
+    // Auto-title: if this is the first message (history has only 1 user msg), generate title
+    const isFirstMessage = history.length <= 1;
 
     // Stream AI response with turn tracking + token usage
     let fullContent = "";
@@ -168,6 +181,12 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
         usageMeta,
       );
 
+      // Auto-title session from first user message
+      if (isFirstMessage) {
+        const autoTitle = chatService.generateTitleFromMessage(dto.content);
+        await chatService.updateSession(c.req.param("id"), user.sub, { title: autoTitle }).catch(() => {});
+      }
+
       // Send final event with all processing info
       await stream.writeSSE({
         data: JSON.stringify({
@@ -176,6 +195,7 @@ chatRoutes.post("/sessions/:id/messages/stream", async (c) => {
           turn: turnNumber,
           durationMs,
           hasThinking: !!agg?.main.thinkingTokens,
+          ...(isFirstMessage ? { sessionTitleUpdated: true } : {}),
         }),
         event: "ai-complete",
         id: String(chunkId++),
