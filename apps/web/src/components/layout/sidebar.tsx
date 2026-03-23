@@ -56,7 +56,7 @@ export function Sidebar() {
           <Compass className="h-4 w-4 text-white" />
         </div>
         <span className="ml-2 text-lg font-semibold text-[var(--foreground)]">
-          AI Travel
+          AI Homesworld Travel
         </span>
       </div>
 

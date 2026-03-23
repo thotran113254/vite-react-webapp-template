@@ -19,6 +19,7 @@ export const marketProperties = pgTable(
     marketId: uuid("market_id").notNull().references(() => markets.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 255 }).notNull(),
+    propertyCode: varchar("property_code", { length: 20 }),
     type: varchar("type", { length: 50 }).notNull().default("homestay"),
     starRating: decimal("star_rating", { precision: 2, scale: 1 }),
     address: text("address"),

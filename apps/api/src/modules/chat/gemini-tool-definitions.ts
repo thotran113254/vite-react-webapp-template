@@ -202,7 +202,7 @@ const getTransportPricing: FunctionDeclaration = {
 const calculateComboPrice: FunctionDeclaration = {
   name: "calculateComboPrice",
   description:
-    "Tính giá combo trọn gói: phòng + vận chuyển + tàu (nếu có). Áp dụng biên lợi nhuận. Trả về báo giá chi tiết từng hạng mục và giá/người. Dùng khi sale cần báo giá combo, tính giá trọn gói cho khách. Hỗ trợ lịch nhiều ngày có loại ngày khác nhau (ví dụ T5+T6+T7).",
+    "Tính giá combo trọn gói. Áp dụng biên lợi nhuận. CHỈ trả về giá combo TỔNG và giá TRUNG BÌNH/NGƯỜI (KHÔNG trả về giá chi tiết từng hạng mục). Dùng khi sale cần báo giá combo cho khách. Hỗ trợ lịch nhiều ngày có loại ngày khác nhau (ví dụ T5+T6+T7).",
   parameters: {
     type: Type.OBJECT,
     properties: {

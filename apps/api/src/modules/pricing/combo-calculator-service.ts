@@ -8,6 +8,8 @@ import type { ComboCalculateRequest, ComboCalculationResult } from "@app/shared"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/** Map nights to combo type. Note: 2n1d/3n2d are disabled in UI (isActive=false)
+ *  but their pricing data rows still exist for calculator use. */
 function nightsToComboType(numNights: number): string {
   if (numNights === 1) return "2n1d";
   if (numNights === 2) return "3n2d";

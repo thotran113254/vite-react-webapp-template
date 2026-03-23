@@ -24,6 +24,8 @@ export const transportProviders = pgTable(
     contactInfo: jsonb("contact_info").default({}),
     pickupPoints: jsonb("pickup_points").default([]),
     notes: text("notes"),
+    images: jsonb("images").default([]),
+    pricingNotes: text("pricing_notes"),
     sortOrder: integer("sort_order").notNull().default(0),
     aiVisible: boolean("ai_visible").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

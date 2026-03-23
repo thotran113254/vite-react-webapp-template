@@ -5,6 +5,7 @@ export type PricingOptionSeed = {
   description: string;
   config: Record<string, unknown>;
   sortOrder: number;
+  isActive?: boolean;
 };
 
 export const comboTypeSeedData: PricingOptionSeed[] = [
@@ -15,6 +16,7 @@ export const comboTypeSeedData: PricingOptionSeed[] = [
     description: "Combo 3 ngày 2 đêm — gói phổ biến nhất cho khách du lịch cuối tuần dài",
     config: { days: 3, nights: 2 },
     sortOrder: 1,
+    isActive: false,
   },
   {
     category: "combo_type",
@@ -23,6 +25,7 @@ export const comboTypeSeedData: PricingOptionSeed[] = [
     description: "Combo 2 ngày 1 đêm — gói ngắn ngày cho khách đi nhanh",
     config: { days: 2, nights: 1 },
     sortOrder: 2,
+    isActive: false,
   },
   {
     category: "combo_type",

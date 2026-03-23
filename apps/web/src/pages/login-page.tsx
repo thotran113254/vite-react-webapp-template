@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import type { LoginInput } from "@app/shared";
 
-/** Login page styled as AI Travel Assistant with teal branding. */
+/** Login page styled as AI Homesworld Travel with teal branding. */
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export default function LoginPage() {
             <Compass size={28} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-[var(--foreground)]">AI Travel Assistant</h1>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">AI Homesworld Travel</h1>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">
               Đăng nhập để bắt đầu hành trình của bạn
             </p>
