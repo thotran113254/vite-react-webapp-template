@@ -1,15 +1,34 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Building2, DoorOpen, Plus, Search } from "lucide-react";
+import { Building2, DoorOpen, Plus, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { PricingPriceMatrix } from "@/components/pricing/pricing-price-matrix";
+import { PricingMarginSummary } from "@/components/pricing/pricing-margin-summary";
 import { RoomFormDialog, EMPTY_ROOM, type RoomForm } from "@/components/market-data/room-form-dialog";
 import { apiClient } from "@/lib/api-client";
-import type { MarketProperty, PropertyRoom } from "@app/shared";
+import type { MarketProperty, PropertyRoom, RoomPricing } from "@app/shared";
 
 const SEARCH_THRESHOLD = 6;
+
+/** Fetch pricings for all rooms in a property (parallel queries). */
+function usePropertyPricings(rooms: PropertyRoom[]) {
+  return useQuery({
+    queryKey: ["property-pricings-bulk", rooms.map((r) => r.id).join(",")],
+    enabled: rooms.length > 0,
+    queryFn: async () => {
+      const results = await Promise.all(
+        rooms.map(async (room) => {
+          const res = await apiClient.get<{ data: RoomPricing[] }>(`/rooms/${room.id}/pricing`);
+          return { roomId: room.id, roomType: room.roomType, pricings: res.data.data ?? [] };
+        }),
+      );
+      return results;
+    },
+    staleTime: 30 * 1000,
+  });
+}
 
 /** Room pricing overview: property pills + add room + flat room list with price matrices. */
 export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string; isAdmin: boolean }) {
@@ -18,6 +37,7 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
   const [search, setSearch] = useState("");
   const [roomDialog, setRoomDialog] = useState(false);
   const [roomForm, setRoomForm] = useState<RoomForm>(EMPTY_ROOM);
+  const [showMargin, setShowMargin] = useState(false);
 
   const { data: properties = [], isLoading: propsLoading } = useQuery({
     queryKey: ["market-properties", marketId],
@@ -42,6 +62,8 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
       return (res.data.data ?? []).sort((a, b) => a.sortOrder - b.sortOrder);
     },
   });
+
+  const { data: roomPricings = [] } = usePropertyPricings(isAdmin ? rooms : []);
 
   const addRoomMutation = useMutation({
     mutationFn: async () => {
@@ -96,6 +118,24 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
           <span className="text-xs text-[var(--muted-foreground)]">Không tìm thấy</span>
         )}
       </div>
+
+      {/* Margin summary (admin only, collapsible) */}
+      {isAdmin && roomPricings.length > 0 && (
+        <div className="border border-[var(--border)] rounded-lg overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider hover:bg-[var(--muted)]/30 transition-colors"
+            onClick={() => setShowMargin((v) => !v)}
+          >
+            <span>Phân tích biên lợi nhuận</span>
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showMargin ? "rotate-180" : ""}`} />
+          </button>
+          {showMargin && (
+            <div className="px-3 pb-3">
+              <PricingMarginSummary rooms={roomPricings} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Room list header with Add button */}
       {propertyId && !roomsLoading && (

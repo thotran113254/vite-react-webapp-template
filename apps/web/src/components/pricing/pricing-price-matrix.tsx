@@ -6,23 +6,37 @@ import { Spinner } from "@/components/ui/spinner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { usePricingOptions } from "@/hooks/use-pricing-options";
 import {
-  RoomPricingFormDialog, EMPTY_ROOM_PRICING,
+  RoomPricingFormDialog,
+  buildEmptyFormState,
+  recordsToPeriods,
   type RoomPricingFormState,
 } from "@/components/market-data/room-pricing-form-dialog";
+import type { SurchargeRule } from "@/components/market-data/surcharge-rules-editor";
 import { apiClient } from "@/lib/api-client";
 import { fmtVnd } from "@/lib/format-currency";
 import type { PropertyRoom, RoomPricing } from "@app/shared";
 
-/** Spreadsheet-style price matrix with full CRUD: click cell to add/edit, × to delete. */
+function marginPct(price: number, discount: number | null): number | null {
+  if (!discount || price <= 0) return null;
+  return Math.round(((price - discount) / price) * 100);
+}
+
+function MarginBadge({ pct }: { pct: number | null }) {
+  if (pct == null) return <span className="text-[var(--muted-foreground)]/40">—</span>;
+  const cls = pct > 20 ? "text-green-600" : pct >= 10 ? "text-yellow-600" : "text-red-500";
+  return <span className={`text-[10px] font-semibold ${cls}`}>{pct}%</span>;
+}
+
+/** Spreadsheet-style price matrix grouped by period, with margin column. Admin-only pricing. */
 export function PricingPriceMatrix({ room, isAdmin }: { room: PropertyRoom; isAdmin: boolean }) {
   const qc = useQueryClient();
-  const { comboOptions, dayOptions, seasonOptions, comboLabel, dayLabel } = usePricingOptions();
-  const [season, setSeason] = useState("default");
+  const { dayOptions, dayLabel } = usePricingOptions();
   const [dialog, setDialog] = useState(false);
-  const [editItem, setEditItem] = useState<RoomPricing | null>(null);
-  const [form, setForm] = useState<RoomPricingFormState>(EMPTY_ROOM_PRICING);
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState<RoomPricingFormState>(() => buildEmptyFormState([]));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RoomPricing | null>(null);
+
 
   const qk = ["room-pricing", room.id];
   const { data = [], isLoading } = useQuery({
@@ -33,101 +47,87 @@ export function PricingPriceMatrix({ room, isAdmin }: { room: PropertyRoom; isAd
     },
   });
 
-  const lookup = new Map<string, RoomPricing>();
+  // Group by period key
+  const byPeriod = new Map<string, RoomPricing[]>();
   for (const p of data) {
-    if ((p.seasonName || "default") === season) lookup.set(`${p.comboType}|${p.dayType}`, p);
+    const key = `${p.seasonName}|${p.seasonStart ?? ""}`;
+    const arr = byPeriod.get(key) ?? [];
+    arr.push(p);
+    byPeriod.set(key, arr);
   }
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const n = (v: string) => v ? Number(v) : null;
-      const payload = {
-        comboType: form.comboType, dayType: form.dayType,
-        seasonName: form.seasonName || "default",
-        standardGuests: Number(form.standardGuests), price: Number(form.price),
-        pricePlus1: n(form.pricePlus1), priceMinus1: n(form.priceMinus1),
-        extraNight: n(form.extraNight), discountPrice: n(form.discountPrice),
-        discountPricePlus1: n(form.discountPricePlus1), discountPriceMinus1: n(form.discountPriceMinus1),
-        underStandardPrice: n(form.underStandardPrice),
-        extraAdultSurcharge: n(form.extraAdultSurcharge), extraChildSurcharge: n(form.extraChildSurcharge),
-        includedAmenities: form.includedAmenities || null,
-      };
-      if (editItem) await apiClient.patch(`/rooms/${room.id}/pricing/${editItem.id}`, payload);
-      else await apiClient.post(`/rooms/${room.id}/pricing`, payload);
+      const ops: Promise<unknown>[] = [];
+      for (const period of form.periods) {
+        for (const [dayKey, dp] of Object.entries(period.dayPrices)) {
+          if (!dp.price) continue;
+          const payload = {
+            comboType: "per_night",
+            dayType: dayKey,
+            seasonName: period.seasonName || "default",
+            seasonStart: period.seasonStart || null,
+            seasonEnd: period.seasonEnd || null,
+            standardGuests: Number(form.standardGuests) || 2,
+            price: Number(dp.price),
+            discountPrice: dp.discountPrice ? Number(dp.discountPrice) : null,
+            extraAdultSurcharge: form.extraAdultSurcharge ? Number(form.extraAdultSurcharge) : null,
+            surchargeRules: form.surchargeRules,
+            includedAmenities: form.includedAmenities || null,
+            notes: form.notes || null,
+          };
+          const existing = data.find(
+            (r) => r.dayType === dayKey &&
+              r.seasonName === (period.seasonName || "default") &&
+              (r.seasonStart ?? "") === (period.seasonStart ?? ""),
+          );
+          if (existing) ops.push(apiClient.patch(`/rooms/${room.id}/pricing/${existing.id}`, payload));
+          else ops.push(apiClient.post(`/rooms/${room.id}/pricing`, payload));
+        }
+      }
+      await Promise.all(ops);
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: qk }); closeDialog(); },
     onError: (err: any) => { setSaveError(err?.response?.data?.message ?? "Lỗi lưu giá"); },
   });
 
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiClient.delete(`/rooms/${room.id}/pricing/${id}`),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: qk }); setDeleteTarget(null); setDeleteError(null); },
-    onError: (err: any) => { setDeleteError(err?.response?.data?.message ?? "Lỗi xóa giá"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: qk }); setDeleteTarget(null); },
+    onError: () => { setDeleteTarget(null); },
   });
 
-  const openCell = (comboKey: string, dayKey: string) => {
-    if (!isAdmin) return;
-    const existing = lookup.get(`${comboKey}|${dayKey}`);
-    if (existing) {
-      setEditItem(existing);
-      const s = (v: number | null | undefined) => (v != null ? String(v) : "");
-      setForm({
-        comboType: existing.comboType, dayType: existing.dayType,
-        seasonName: existing.seasonName || "default",
-        standardGuests: String(existing.standardGuests), price: String(existing.price),
-        pricePlus1: s(existing.pricePlus1), priceMinus1: s(existing.priceMinus1),
-        extraNight: s(existing.extraNight), discountPrice: s(existing.discountPrice),
-        discountPricePlus1: s(existing.discountPricePlus1), discountPriceMinus1: s(existing.discountPriceMinus1),
-        underStandardPrice: s(existing.underStandardPrice),
-        extraAdultSurcharge: s(existing.extraAdultSurcharge), extraChildSurcharge: s(existing.extraChildSurcharge),
-        includedAmenities: existing.includedAmenities ?? "",
-      });
-    } else {
-      setEditItem(null);
-      setForm({ ...EMPTY_ROOM_PRICING, comboType: comboKey, dayType: dayKey, seasonName: season, standardGuests: String(room.capacity) });
-    }
-    setSaveError(null);
-    setDialog(true);
-  };
-
   const openAdd = () => {
-    setEditItem(null);
-    setForm({
-      ...EMPTY_ROOM_PRICING,
-      comboType: comboOptions[0]?.optionKey ?? "",
-      dayType: dayOptions[0]?.optionKey ?? "",
-      seasonName: season,
-      standardGuests: String(room.capacity),
-    });
+    setIsEditing(false);
+    setForm(buildEmptyFormState(dayOptions));
     setSaveError(null);
     setDialog(true);
   };
 
-  const closeDialog = () => { setDialog(false); setEditItem(null); setSaveError(null); };
+  const openEditPeriod = (rows: RoomPricing[]) => {
+    if (!rows.length || !isAdmin) return;
+    const first = rows[0]!;
+    setForm({
+      periods: recordsToPeriods(rows, dayOptions),
+      standardGuests: String(first.standardGuests),
+      includedAmenities: first.includedAmenities ?? "",
+      extraAdultSurcharge: first.extraAdultSurcharge ? String(first.extraAdultSurcharge) : "",
+      surchargeRules: (first.surchargeRules ?? []) as SurchargeRule[],
+      notes: first.notes ?? "",
+    });
+    setIsEditing(true);
+    setSaveError(null);
+    setDialog(true);
+  };
+
+  const closeDialog = () => { setDialog(false); setIsEditing(false); setSaveError(null); };
 
   if (isLoading) return <Spinner size="sm" />;
 
   return (
     <div>
-      {/* Season pills + Add button */}
-      <div className="flex items-center justify-between mb-2 gap-2">
-        <div className="flex gap-1 flex-wrap">
-          {seasonOptions.length > 0 && (
-            <>
-              <button onClick={() => setSeason("default")}
-                className={`px-2.5 py-1 text-xs rounded-full transition-colors ${season === "default" ? "bg-teal-600 text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-teal-100 dark:hover:bg-teal-900/30"}`}>
-                Mặc định
-              </button>
-              {seasonOptions.map((s) => (
-                <button key={s.optionKey} onClick={() => setSeason(s.optionKey)}
-                  className={`px-2.5 py-1 text-xs rounded-full transition-colors ${season === s.optionKey ? "bg-teal-600 text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-teal-100 dark:hover:bg-teal-900/30"}`}>
-                  {s.label}
-                </button>
-              ))}
-            </>
-          )}
-        </div>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs text-[var(--muted-foreground)]">{byPeriod.size} giai đoạn</span>
         {isAdmin && (
           <Button size="sm" variant="ghost" className="text-xs text-teal-600 h-6 px-2 shrink-0" onClick={openAdd}>
             <Plus className="mr-0.5 h-3 w-3" /> Thêm giá
@@ -135,72 +135,92 @@ export function PricingPriceMatrix({ room, isAdmin }: { room: PropertyRoom; isAd
         )}
       </div>
 
-      {/* Price grid */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-[var(--border)]">
-              <th className="text-left p-1.5 text-[var(--muted-foreground)] font-medium w-24" />
-              {comboOptions.map((c) => (
-                <th key={c.optionKey} className="text-center p-1.5 text-teal-700 dark:text-teal-400 font-semibold">{c.label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {dayOptions.map((d) => (
-              <tr key={d.optionKey} className="border-b border-[var(--border)]/50">
-                <td className="p-1.5 text-[var(--muted-foreground)] font-medium whitespace-nowrap">{d.label}</td>
-                {comboOptions.map((c) => {
-                  const p = lookup.get(`${c.optionKey}|${d.optionKey}`);
-                  return (
-                    <td key={c.optionKey} className="p-0.5 text-center">
-                      <div className="relative group">
-                        <button onClick={() => openCell(c.optionKey, d.optionKey)}
-                          disabled={!isAdmin}
-                          title={p ? `Click để sửa` : "Click để thêm giá"}
-                          className={`w-full px-2 py-1.5 rounded transition-colors ${isAdmin ? "cursor-pointer" : "cursor-default"} ${
-                            p ? "font-medium text-[var(--foreground)] hover:bg-teal-50 dark:hover:bg-teal-900/20"
-                              : "text-[var(--muted-foreground)]/40 hover:bg-[var(--muted)]/50"}`}>
-                          {p ? fmtVnd(p.price) : (isAdmin ? <Plus className="h-3 w-3 mx-auto opacity-30" /> : "—")}
-                          {isAdmin && p?.discountPrice != null && (
-                            <span className="block text-[10px] text-orange-500 leading-tight">{fmtVnd(p.discountPrice)}</span>
-                          )}
-                        </button>
-                        {/* Delete button on hover */}
-                        {isAdmin && p && (
-                          <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }}
-                            className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition-opacity hidden group-hover:flex"
-                            title="Xóa giá này">
-                            <X className="h-2.5 w-2.5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {byPeriod.size === 0 && (
+        <p className="text-xs text-[var(--muted-foreground)] text-center py-3">Chưa có bảng giá</p>
+      )}
 
-      {/* Edit/Add dialog */}
+      {/* Per-period tables */}
+      {Array.from(byPeriod.entries()).map(([key, rows]) => {
+        const first = rows[0]!;
+        const dateRange = first.seasonStart && first.seasonEnd
+          ? ` · ${first.seasonStart} → ${first.seasonEnd}` : "";
+        const displayName = first.seasonName === "default" ? "Mặc định" : first.seasonName;
+
+        return (
+          <div key={key} className="mb-3">
+            <div
+              className={`flex items-center gap-1.5 mb-1 ${isAdmin ? "cursor-pointer hover:text-teal-600" : ""}`}
+              onClick={() => isAdmin && openEditPeriod(rows)}
+              title={isAdmin ? "Click để sửa giai đoạn" : undefined}
+            >
+              <span className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">
+                {displayName}{dateRange}
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--border)]">
+                    <th className="text-left p-1.5 text-[var(--muted-foreground)] font-medium">Loại ngày</th>
+                    <th className="text-right p-1.5 text-[var(--muted-foreground)] font-medium">Niêm yết</th>
+                    {isAdmin && <th className="text-right p-1.5 text-orange-500 font-medium">Chiết khấu</th>}
+                    {isAdmin && <th className="text-right p-1.5 text-[var(--muted-foreground)] font-medium">Biên LN</th>}
+                    {isAdmin && <th className="w-6" />}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.sort((a, b) => a.dayType > b.dayType ? 1 : -1).map((p) => {
+                    const margin = marginPct(p.price, p.discountPrice ?? null);
+                    return (
+                      <tr key={p.id} className="border-b border-[var(--border)]/40 group">
+                        <td className="p-1.5 text-[var(--muted-foreground)]">{dayLabel(p.dayType)}</td>
+                        <td className="p-1.5 text-right font-medium">
+                          {isAdmin ? fmtVnd(p.price) : <span className="text-[var(--muted-foreground)]">---</span>}
+                        </td>
+                        {isAdmin && (
+                          <td className="p-1.5 text-right text-orange-500">
+                            {p.discountPrice != null ? fmtVnd(p.discountPrice) : "—"}
+                          </td>
+                        )}
+                        {isAdmin && (
+                          <td className="p-1.5 text-right"><MarginBadge pct={margin} /></td>
+                        )}
+                        {isAdmin && (
+                          <td className="p-0.5">
+                            <button
+                              onClick={() => setDeleteTarget(p)}
+                              className="h-5 w-5 rounded text-[var(--muted-foreground)] hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                              title="Xóa giá này"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+
       <RoomPricingFormDialog
         open={dialog} onClose={closeDialog}
         form={form} setForm={setForm}
-        isEditing={!!editItem} isAdmin={isAdmin}
+        isEditing={isEditing} isAdmin={isAdmin}
         isSaving={saveMutation.isPending}
         onSave={() => { setSaveError(null); saveMutation.mutate(); }}
         saveError={saveError}
-        comboOptions={comboOptions} dayOptions={dayOptions}
-        seasonOptions={seasonOptions}
+        dayOptions={dayOptions}
       />
 
-      {/* Delete confirmation */}
       <ConfirmDialog
         open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}
         title="Xóa giá"
-        description={`Xóa giá ${comboLabel(deleteTarget?.comboType ?? "")} - ${dayLabel(deleteTarget?.dayType ?? "")}?`}
+        description={`Xóa giá ${dayLabel(deleteTarget?.dayType ?? "")}?`}
         confirmLabel="Xóa" variant="destructive"
         onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
         isLoading={deleteMutation.isPending}

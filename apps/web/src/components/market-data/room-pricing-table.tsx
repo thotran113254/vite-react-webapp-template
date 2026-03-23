@@ -9,19 +9,33 @@ import { fmtVnd } from "@/lib/format-currency";
 import { usePricingOptions } from "@/hooks/use-pricing-options";
 import {
   RoomPricingFormDialog,
-  EMPTY_ROOM_PRICING,
+  buildEmptyFormState,
+  recordsToPeriods,
   type RoomPricingFormState,
 } from "@/components/market-data/room-pricing-form-dialog";
+import type { SurchargeRule } from "@/components/market-data/surcharge-rules-editor";
 import type { PropertyRoom, RoomPricing } from "@app/shared";
 
-/** Pricing management table for a single room with full CRUD. */
+/** Compute margin % between listed and discount price */
+function marginPct(price: number, discountPrice: number | null): number | null {
+  if (!discountPrice || price <= 0) return null;
+  return Math.round(((price - discountPrice) / price) * 100);
+}
+
+function MarginBadge({ pct }: { pct: number | null }) {
+  if (pct == null) return null;
+  const cls = pct > 20 ? "text-green-600" : pct >= 10 ? "text-yellow-600" : "text-red-600";
+  return <span className={`text-[10px] font-medium ${cls}`}>BLN {pct}%</span>;
+}
+
+/** Pricing management table for a single room — period-based display with full CRUD. */
 export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: boolean }) {
   const queryClient = useQueryClient();
-  const { comboOptions, dayOptions, seasonOptions, comboLabel, dayLabel, seasonLabel, isLoading: optionsLoading } = usePricingOptions();
+  const { dayOptions, dayLabel, isLoading: optionsLoading } = usePricingOptions();
   const [pricingDialog, setPricingDialog] = useState(false);
-  const [editPricing, setEditPricing] = useState<RoomPricing | null>(null);
-  const [pForm, setPForm] = useState<RoomPricingFormState>(EMPTY_ROOM_PRICING);
-  const [deleteTarget, setDeleteTarget] = useState<RoomPricing | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [pForm, setPForm] = useState<RoomPricingFormState>(() => buildEmptyFormState([]));
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null); // seasonName|seasonStart to delete
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const qk = ["room-pricing", room.id];
@@ -35,89 +49,99 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = {
-        comboType: pForm.comboType, dayType: pForm.dayType,
-        seasonName: pForm.seasonName || "default",
-        standardGuests: Number(pForm.standardGuests), price: Number(pForm.price),
-        pricePlus1: pForm.pricePlus1 ? Number(pForm.pricePlus1) : null,
-        priceMinus1: pForm.priceMinus1 ? Number(pForm.priceMinus1) : null,
-        extraNight: pForm.extraNight ? Number(pForm.extraNight) : null,
-        discountPrice: pForm.discountPrice ? Number(pForm.discountPrice) : null,
-        discountPricePlus1: pForm.discountPricePlus1 ? Number(pForm.discountPricePlus1) : null,
-        discountPriceMinus1: pForm.discountPriceMinus1 ? Number(pForm.discountPriceMinus1) : null,
-        underStandardPrice: pForm.underStandardPrice ? Number(pForm.underStandardPrice) : null,
-        extraAdultSurcharge: pForm.extraAdultSurcharge ? Number(pForm.extraAdultSurcharge) : null,
-        extraChildSurcharge: pForm.extraChildSurcharge ? Number(pForm.extraChildSurcharge) : null,
-        includedAmenities: pForm.includedAmenities || null,
-      };
-      if (editPricing) {
-        await apiClient.patch(`/rooms/${room.id}/pricing/${editPricing.id}`, payload);
-      } else {
-        await apiClient.post(`/rooms/${room.id}/pricing`, payload);
+      const pricings = data ?? [];
+      const ops: Promise<unknown>[] = [];
+
+      for (const period of pForm.periods) {
+        for (const [dayKey, dp] of Object.entries(period.dayPrices)) {
+          if (!dp.price) continue;
+          const payload = {
+            comboType: "per_night",
+            dayType: dayKey,
+            seasonName: period.seasonName || "default",
+            seasonStart: period.seasonStart || null,
+            seasonEnd: period.seasonEnd || null,
+            standardGuests: Number(pForm.standardGuests) || 2,
+            price: Number(dp.price),
+            discountPrice: dp.discountPrice ? Number(dp.discountPrice) : null,
+            extraAdultSurcharge: pForm.extraAdultSurcharge ? Number(pForm.extraAdultSurcharge) : null,
+            surchargeRules: pForm.surchargeRules,
+            includedAmenities: pForm.includedAmenities || null,
+            notes: pForm.notes || null,
+          };
+          // Find existing record matching this period+day
+          const existing = pricings.find(
+            (r) => r.dayType === dayKey &&
+              r.seasonName === (period.seasonName || "default") &&
+              (r.seasonStart ?? "") === (period.seasonStart ?? ""),
+          );
+          if (existing) {
+            ops.push(apiClient.patch(`/rooms/${room.id}/pricing/${existing.id}`, payload));
+          } else {
+            ops.push(apiClient.post(`/rooms/${room.id}/pricing`, payload));
+          }
+        }
       }
+      await Promise.all(ops);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: qk }); closePricingDialog(); },
     onError: (err: any) => {
-      const msg = err?.response?.data?.message ?? err?.message ?? "Lỗi lưu giá";
-      setSaveError(msg);
+      setSaveError(err?.response?.data?.message ?? err?.message ?? "Lỗi lưu giá");
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/rooms/${room.id}/pricing/${id}`),
+  const deleteSeasonMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const [seasonName, seasonStart] = key.split("|");
+      const pricings = data ?? [];
+      const targets = pricings.filter(
+        (r) => r.seasonName === seasonName && (r.seasonStart ?? "") === (seasonStart ?? ""),
+      );
+      await Promise.all(targets.map((r) => apiClient.delete(`/rooms/${room.id}/pricing/${r.id}`)));
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: qk }); setDeleteTarget(null); },
   });
 
   const openAdd = () => {
-    setEditPricing(null);
-    setPForm({
-      ...EMPTY_ROOM_PRICING,
-      comboType: comboOptions[0]?.optionKey ?? "",
-      dayType: dayOptions[0]?.optionKey ?? "",
-      seasonName: "default",
-      standardGuests: String(room.capacity),
-    });
+    setIsEditing(false);
+    setPForm(buildEmptyFormState(dayOptions));
     setPricingDialog(true);
   };
 
-  const openEdit = (p: RoomPricing) => {
-    setEditPricing(p);
+  const openEdit = (pricings: RoomPricing[]) => {
+    if (!pricings.length) return;
+    const first = pricings[0]!;
+    const periods = recordsToPeriods(pricings, dayOptions);
+    const surchargeRules = (first.surchargeRules ?? []) as SurchargeRule[];
     setPForm({
-      comboType: p.comboType, dayType: p.dayType, seasonName: p.seasonName || "default",
-      standardGuests: String(p.standardGuests), price: String(p.price),
-      pricePlus1: p.pricePlus1 ? String(p.pricePlus1) : "",
-      priceMinus1: p.priceMinus1 ? String(p.priceMinus1) : "",
-      extraNight: p.extraNight ? String(p.extraNight) : "",
-      discountPrice: p.discountPrice ? String(p.discountPrice) : "",
-      discountPricePlus1: p.discountPricePlus1 ? String(p.discountPricePlus1) : "",
-      discountPriceMinus1: p.discountPriceMinus1 ? String(p.discountPriceMinus1) : "",
-      underStandardPrice: p.underStandardPrice ? String(p.underStandardPrice) : "",
-      extraAdultSurcharge: p.extraAdultSurcharge ? String(p.extraAdultSurcharge) : "",
-      extraChildSurcharge: p.extraChildSurcharge ? String(p.extraChildSurcharge) : "",
-      includedAmenities: p.includedAmenities ?? "",
+      periods,
+      standardGuests: String(first.standardGuests),
+      includedAmenities: first.includedAmenities ?? "",
+      extraAdultSurcharge: first.extraAdultSurcharge ? String(first.extraAdultSurcharge) : "",
+      surchargeRules,
+      notes: first.notes ?? "",
     });
+    setIsEditing(true);
     setPricingDialog(true);
   };
 
   const closePricingDialog = () => {
     setPricingDialog(false);
-    setEditPricing(null);
-    setPForm(EMPTY_ROOM_PRICING);
+    setIsEditing(false);
+    setPForm(buildEmptyFormState(dayOptions));
     setSaveError(null);
   };
 
   const pricings = data ?? [];
-  /* Group: season → combo → prices */
-  const bySeason = new Map<string, Map<string, RoomPricing[]>>();
+
+  // Group by season key (seasonName|seasonStart)
+  const byPeriod = new Map<string, RoomPricing[]>();
   for (const p of pricings) {
-    const sKey = p.seasonName || "default";
-    if (!bySeason.has(sKey)) bySeason.set(sKey, new Map());
-    const comboMap = bySeason.get(sKey)!;
-    const arr = comboMap.get(p.comboType) ?? [];
+    const key = `${p.seasonName}|${p.seasonStart ?? ""}`;
+    const arr = byPeriod.get(key) ?? [];
     arr.push(p);
-    comboMap.set(p.comboType, arr);
+    byPeriod.set(key, arr);
   }
-  const hasMultipleSeasons = bySeason.size > 1;
 
   if (isLoading || optionsLoading) return <Spinner size="sm" />;
 
@@ -132,76 +156,88 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
         )}
       </div>
 
-      {pricings.length === 0 && <p className="text-xs text-[var(--muted-foreground)]">Chưa có bảng giá</p>}
+      {pricings.length === 0 && (
+        <p className="text-xs text-[var(--muted-foreground)]">Chưa có bảng giá</p>
+      )}
 
-      {Array.from(bySeason.entries()).map(([season, comboMap]) => (
-        <div key={season} className={hasMultipleSeasons ? "border-l-2 border-teal-200 pl-2 mb-2" : ""}>
-          {hasMultipleSeasons && (
-            <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider mb-1">{seasonLabel(season)}</p>
-          )}
-          {Array.from(comboMap.entries()).map(([combo, prices]) => (
-            <div key={combo} className="mb-1">
-              <p className="text-xs font-semibold text-teal-700 mb-1">{comboLabel(combo)}</p>
-              <div className="grid grid-cols-4 gap-1 text-xs">
-                {prices.sort((a, b) => (a.dayType > b.dayType ? 1 : -1)).map((p) => (
-                  <div key={p.id} className="flex flex-col gap-0.5 rounded bg-[var(--muted)]/30 px-2 py-1 group">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[var(--muted-foreground)]">{dayLabel(p.dayType)}:</span>
-                      <span className="font-medium text-[var(--foreground)]">{fmtVnd(p.price)}</span>
-                      {isAdmin && (
-                        <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100">
-                          <button className="text-[var(--muted-foreground)] hover:text-teal-600" onClick={() => openEdit(p)}><Pencil className="h-2.5 w-2.5" /></button>
-                          <button className="text-[var(--muted-foreground)] hover:text-red-600" onClick={() => setDeleteTarget(p)}><Trash2 className="h-2.5 w-2.5" /></button>
-                        </div>
-                      )}
-                    </div>
-                    {isAdmin && p.discountPrice != null && (
-                      <span className="text-orange-500 text-[10px]">CK: {fmtVnd(p.discountPrice)}</span>
-                    )}
-                    {p.underStandardPrice != null && (
-                      <span className="text-blue-500 text-[10px]">Dưới TC: {fmtVnd(p.underStandardPrice)}</span>
-                    )}
-                    {p.extraAdultSurcharge != null && (
-                      <span className="text-[var(--muted-foreground)] text-[10px]">+NL: {fmtVnd(p.extraAdultSurcharge)}</span>
-                    )}
-                    {p.extraChildSurcharge != null && (
-                      <span className="text-[var(--muted-foreground)] text-[10px]">+TE: {fmtVnd(p.extraChildSurcharge)}</span>
-                    )}
-                    {p.includedAmenities && (
-                      <span className="text-green-600 text-[10px] truncate" title={p.includedAmenities}>{p.includedAmenities}</span>
+      {Array.from(byPeriod.entries()).map(([key, rows]) => {
+        const first = rows[0]!;
+        const dateRange = first.seasonStart && first.seasonEnd
+          ? ` (${first.seasonStart} → ${first.seasonEnd})`
+          : "";
+        const displayName = first.seasonName === "default" ? "Mặc định" : first.seasonName;
+        return (
+          <div key={key} className="border-l-2 border-teal-200 pl-2 mb-2">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">
+                {displayName}{dateRange}
+              </p>
+              {isAdmin && (
+                <>
+                  <button
+                    className="text-[var(--muted-foreground)] hover:text-teal-600"
+                    title="Sửa giai đoạn"
+                    onClick={() => openEdit(rows)}
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                  <button
+                    className="text-[var(--muted-foreground)] hover:text-red-600"
+                    title="Xóa giai đoạn"
+                    onClick={() => setDeleteTarget(key)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-1 text-xs">
+              {rows.sort((a, b) => (a.dayType > b.dayType ? 1 : -1)).map((p) => {
+                const margin = marginPct(p.price, p.discountPrice ?? null);
+                return (
+                  <div key={p.id} className="flex flex-col gap-0.5 rounded bg-[var(--muted)]/30 px-2 py-1">
+                    <span className="text-[var(--muted-foreground)]">{dayLabel(p.dayType)}</span>
+                    {isAdmin ? (
+                      <>
+                        <span className="font-medium">{fmtVnd(p.price)}</span>
+                        {p.discountPrice != null && (
+                          <span className="text-orange-500 text-[10px]">CK: {fmtVnd(p.discountPrice)}</span>
+                        )}
+                        <MarginBadge pct={margin} />
+                      </>
+                    ) : (
+                      <span className="text-[var(--muted-foreground)] italic text-[10px]">---</span>
                     )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      ))}
+          </div>
+        );
+      })}
 
       <RoomPricingFormDialog
         open={pricingDialog}
         onClose={closePricingDialog}
         form={pForm}
         setForm={setPForm}
-        isEditing={!!editPricing}
+        isEditing={isEditing}
         isAdmin={isAdmin}
         isSaving={saveMutation.isPending}
         onSave={() => { setSaveError(null); saveMutation.mutate(); }}
         saveError={saveError}
-        comboOptions={comboOptions}
         dayOptions={dayOptions}
-        seasonOptions={seasonOptions}
       />
 
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={() => setDeleteTarget(null)}
-        title="Xóa bảng giá"
-        description={`Xóa giá ${comboLabel(deleteTarget?.comboType ?? "")} - ${dayLabel(deleteTarget?.dayType ?? "")}?`}
+        title="Xóa giai đoạn giá"
+        description="Xóa toàn bộ giá trong giai đoạn này?"
         confirmLabel="Xóa"
         variant="destructive"
-        onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
-        isLoading={deleteMutation.isPending}
+        onConfirm={() => deleteTarget && deleteSeasonMutation.mutate(deleteTarget)}
+        isLoading={deleteSeasonMutation.isPending}
       />
     </div>
   );

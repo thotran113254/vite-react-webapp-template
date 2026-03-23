@@ -7,6 +7,7 @@ import {
   text,
   boolean,
   timestamp,
+  jsonb,
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -32,6 +33,7 @@ export const roomPricing = pgTable(
     underStandardPrice: integer("under_standard_price"),
     extraAdultSurcharge: integer("extra_adult_surcharge"),
     extraChildSurcharge: integer("extra_child_surcharge"),
+    surchargeRules: jsonb("surcharge_rules").default([]),
     extraNight: integer("extra_night"),
     includedAmenities: text("included_amenities"),
     notes: text("notes"),
@@ -41,7 +43,7 @@ export const roomPricing = pgTable(
   },
   (table) => [
     index("room_pricing_room_id_idx").on(table.roomId),
-    uniqueIndex("room_pricing_combo_day_season_idx").on(table.roomId, table.comboType, table.dayType, table.seasonName),
+    uniqueIndex("room_pricing_room_day_season_idx").on(table.roomId, table.dayType, table.seasonName, table.seasonStart),
   ],
 );
 

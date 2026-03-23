@@ -89,6 +89,7 @@ export interface RoomPricing {
   underStandardPrice: number | null;
   extraAdultSurcharge: number | null;
   extraChildSurcharge: number | null;
+  surchargeRules: Array<{ label: string; ageMin: number; ageMax: number; price: number }>;
   extraNight: number | null;
   includedAmenities: string | null;
   notes: string | null;
