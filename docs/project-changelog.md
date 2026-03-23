@@ -539,13 +539,13 @@ All notable changes to the VPS Management Dashboard are documented here. Format 
 
 ## Database Statistics
 
-### Current Schema (as of v1.3.0)
-- **Total tables**: 29 (10 existing + 17 core market + 2 transport/pricing)
-- **Total fields**: 460+ (added image/pricing fields)
-- **Foreign keys**: 38+
-- **Unique constraints**: 27+
-- **Indexes**: 55+
-- **JSONB fields**: 5+ (attractions.images, transport_providers.images, etc.)
+### Current Schema (as of v1.6.0)
+- **Total tables**: 33 (10 existing + 17 core market + 2 transport + 2 knowledge/experience + 2 analytics)
+- **Total fields**: 520+ (added period pricing, surcharges, knowledge, experiences, analytics fields)
+- **Foreign keys**: 42+
+- **Unique constraints**: 30+
+- **Indexes**: 65+
+- **JSONB fields**: 8+ (surcharge rules, images, analytics data, etc.)
 
 ### Data Volume (Seed Data)
 - Markets: 2
@@ -578,11 +578,17 @@ All notable changes to the VPS Management Dashboard are documented here. Format 
 - Dining: 4
 - Transportation: 4
 - Inventory Strategies: 4
-- Transport Providers: 5 (NEW)
-- Transport Pricing: 5 (NEW)
-- Combo Calculator: 1 (NEW)
+- Transport Providers: 5
+- Transport Pricing: 5
+- Combo Calculator: 1
+- Knowledge Updates: 6 (v1.5 NEW)
+- Experience Activities: 6 (v1.5 NEW)
+- Knowledge Contribution Workflow: 4 (v1.5 NEW)
+- Admin Analytics/FAQ: 2 (v1.6 NEW)
+- Admin Analytics/Usage: 2 (v1.6 NEW)
+- Admin Chat Viewer: 2 (v1.6 NEW)
 - Misc/Toggle: 2
-- **Total**: 70+
+- **Total**: 90+
 
 ### Authentication
 - All endpoints require bearer token

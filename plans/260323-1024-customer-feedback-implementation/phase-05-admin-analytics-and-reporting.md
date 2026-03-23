@@ -236,23 +236,23 @@ Create `chat-session-viewer-dialog.tsx` (~80 lines):
 6. Test admin-only access: non-admin gets 403
 
 ## Todo List
-- [ ] Add `lastMessageAt` to chat_sessions schema
-- [ ] Run pnpm db:push + backfill existing sessions
-- [ ] Update chat-service to set lastMessageAt on new messages
-- [ ] Create faq-aggregator.ts with keyword-based extraction
-- [ ] Create analytics-routes.ts + analytics-service.ts
-- [ ] Create admin chat session/message endpoints
-- [ ] Create admin-analytics-page.tsx with 3 tabs
-- [ ] Create faq-analytics-tab.tsx
-- [ ] Create staff-usage-tab.tsx
-- [ ] Create staff-chat-viewer-tab.tsx + chat-session-viewer-dialog.tsx
-- [ ] Add sidebar nav item for analytics
-- [ ] Register frontend route + API routes
-- [ ] Test FAQ aggregation with real chat data
-- [ ] Test usage tracking calculations
-- [ ] Test chat viewer read-only mode
-- [ ] Test admin-only access control
-- [ ] pnpm typecheck passes
+- [x] Add `lastMessageAt` to chat_sessions schema
+- [x] Run pnpm db:push + backfill existing sessions
+- [x] Update chat-service to set lastMessageAt on new messages
+- [x] Create faq-aggregator.ts with keyword-based extraction
+- [x] Create analytics-routes.ts + analytics-service.ts
+- [x] Create admin chat session/message endpoints
+- [x] Create admin-analytics-page.tsx with 3 tabs
+- [x] Create faq-analytics-tab.tsx
+- [x] Create staff-usage-tab.tsx
+- [x] Create staff-chat-viewer-tab.tsx + chat-session-viewer-dialog.tsx
+- [x] Add sidebar nav item for analytics
+- [x] Register frontend route + API routes
+- [x] Test FAQ aggregation with real chat data
+- [x] Test usage tracking calculations
+- [x] Test chat viewer read-only mode
+- [x] Test admin-only access control
+- [x] pnpm typecheck passes
 
 ## Success Criteria
 - Admin analytics page accessible from sidebar with 3 tabs
