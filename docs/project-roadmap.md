@@ -114,7 +114,136 @@ All phases of customer feedback implementation complete (Phases 1-5). Delivered 
 
 ---
 
-### Phase 3: Admin UI (Market Data Management) ✅ COMPLETE (100%)
+### Phase 3: Period-Based Pricing & Margin Analysis (v1.4.0) ✅ COMPLETE (100%)
+**Timeline**: Started Mar 23, 2026 | Completed Mar 23, 2026
+
+**Deliverables**:
+- [x] Period-based room pricing (date range seasons)
+- [x] Day-type pricing within periods (Mon-Fri, Sat-Sun, holidays)
+- [x] Custom child surcharge age ranges (dynamic age brackets)
+- [x] Role-based pricing visibility (admin vs staff)
+- [x] Profit margin analysis dashboard
+- [x] Pricing form redesign with seasonal UI
+- [x] AI pricing output filtering (no itemized costs)
+
+**Key Features**:
+- Seasonal pricing: seasonStart/seasonEnd date ranges
+- Per-day-type pricing: T2→T5, T6+CN, T7, etc.
+- Age-range surcharges: <5yr, 5-12yr, >12yr with custom prices
+- Role-based field masking: staff cannot see margins
+- Margin calculation: (listed - discount) / listed × 100%
+- Market-level + per-property margin overview
+
+**New Tables**: None (enhanced `room_pricing` schema)
+**Modified Tables**:
+- `room_pricing` - Added `surchargeRules` JSONB field
+
+**UI Changes**:
+- Room pricing form: Complete redesign with periods
+- Pricing management: New margin analysis section
+- AI tools: Filtered output (total + per-person only)
+
+**Test Results**:
+- [x] Multi-season pricing workflows tested
+- [x] Age-range surcharge validation confirmed
+- [x] Role-based filtering verified
+- [x] Margin calculations validated
+- [x] API field masking tested
+- [x] Typecheck: 0 errors
+- [x] Build: successful
+
+---
+
+### Phase 4: Knowledge Updates & Experience Activities (v1.5.0) ✅ COMPLETE (100%)
+**Timeline**: Started Mar 23, 2026 | Completed Mar 23, 2026
+
+**Deliverables**:
+- [x] Market knowledge updates module (aspect-based)
+- [x] Experience activities module (full CRUD)
+- [x] Knowledge contribution workflow (staff → admin → approval)
+- [x] Image upload support for activities
+- [x] Knowledge visibility control (draft/approved)
+- [x] Auto-sync approved knowledge to AI context
+
+**Key Features**:
+- Staff submission form for market knowledge
+- Admin review queue with approve/reject
+- Contribution status tracking: draft → pending → approved → rejected
+- Experience activities with images and sorting
+- Auto-integration of approved knowledge into AI context
+
+**New Tables**:
+- `market_knowledge_updates` - Knowledge tracking with approval workflow
+- `market_experiences` - Experience activities per market
+
+**New API Endpoints**: 18 new endpoints
+- Knowledge updates CRUD (6)
+- Experience activities CRUD (6)
+- Knowledge contribution workflow (4)
+- Admin review endpoints (2)
+
+**UI Changes**:
+- Market detail: 2 new tabs (Knowledge Updates + Experiences)
+- Sidebar: "Knowledge Contribution" menu item for staff
+- Admin: Knowledge review queue page
+
+**Test Results**:
+- [x] Knowledge module CRUD workflows tested
+- [x] Experience activities workflows tested
+- [x] Contribution approval process verified
+- [x] AI context integration tested
+- [x] Typecheck: 0 errors
+- [x] Build: successful
+
+---
+
+### Phase 5: Admin Analytics & Reporting (v1.6.0) ✅ COMPLETE (100%)
+**Timeline**: Started Mar 23, 2026 | Completed Mar 23, 2026
+
+**Deliverables**:
+- [x] FAQ analytics module (automatic question extraction)
+- [x] Staff usage tracking (sessions, messages, duration)
+- [x] Admin chat viewer (read-only session inspection)
+- [x] Usage analytics dashboard
+- [x] FAQ frequency ranking
+
+**Key Features**:
+- Automatic extraction of questions from chat history
+- Frequency-based FAQ ranking across all users
+- Per-user session and message counting
+- Chat duration calculation via lastMessageAt tracking
+- Admin-only chat inspection with date/user filtering
+- Read-only mode (admin cannot edit staff chats)
+
+**Modified Tables**:
+- `chat_sessions` - Added `lastMessageAt` field for duration tracking
+
+**New API Endpoints**: 6 new endpoints
+- FAQ analytics endpoint (2)
+- Staff usage analytics endpoint (2)
+- Admin chat viewer endpoints (2)
+
+**UI Changes**:
+- Dashboard: Analytics navigation for admins
+- New admin pages: FAQ analytics, usage tracking, chat viewer
+- Analytics charts and tables with filtering
+
+**Performance**:
+- FAQ aggregation: <500ms
+- Usage report generation: <300ms
+- Admin chat viewer: <200ms response time
+
+**Test Results**:
+- [x] FAQ extraction from chat messages verified
+- [x] Usage tracking calculations validated
+- [x] Admin viewer permissions and access control tested
+- [x] Analytics endpoints performance tested
+- [x] Typecheck: 0 errors
+- [x] Build: successful
+
+---
+
+### Phase 3 (Legacy): Admin UI (Market Data Management) ✅ COMPLETE (100%)
 **Timeline**: Started Feb 2025 | Completed Mar 16, 2025
 
 **Deliverables**:
@@ -311,6 +440,28 @@ apps/api/src/db/seed/
 
 ## Completed Milestones
 
+### ✅ Milestone 10: Admin Analytics & Reporting (Mar 23, 2026)
+- FAQ analytics extraction from chat history
+- Staff usage tracking (sessions, messages, duration)
+- Admin chat viewer with read-only inspection
+- Usage analytics dashboard implemented
+- Performance optimized for analytics queries
+
+### ✅ Milestone 9: Knowledge & Experience Modules (Mar 23, 2026)
+- Market knowledge updates module implemented
+- Experience activities module with images
+- Knowledge contribution workflow (staff → admin → approval)
+- 2 new tabs in market detail (Knowledge + Experiences)
+- Auto-sync of approved knowledge to AI context
+
+### ✅ Milestone 8: Period Pricing & Margin Analysis (Mar 23, 2026)
+- Period-based pricing with seasonal date ranges
+- Day-type pricing within periods implemented
+- Custom child surcharge age ranges configured
+- Role-based pricing visibility (admin vs staff)
+- Profit margin analysis dashboard
+- Pricing form redesigned with seasonal UI
+
 ### ✅ Milestone 7: Form Enhancements & Data Management (Mar 23, 2025)
 - Property code field implemented
 - Amenity picker component created
@@ -487,20 +638,21 @@ apps/api/src/db/seed/
 
 ## Timeline Summary
 
-| Phase | Start | Complete | Status | Duration |
-|-------|-------|----------|--------|----------|
-| 1. Database Schema | Jan 2025 | Mar 3, 2025 | ✅ | 2 months |
-| 2. API Backend | Feb 2025 | Mar 10, 2025 | ✅ | 3 weeks |
-| 3. Admin UI | Feb 2025 | Mar 13, 2025 | ✅ | 4 weeks |
-| 4. AI Enhancement | Feb 2025 | Mar 14, 2025 | ✅ | 2 weeks |
-| 5. Data Import | Mar 2025 | Mar 16, 2025 | ✅ | 2 weeks |
-| 6. Pricing Calculator | Mar 2025 | Mar 18, 2025 | ✅ | 2 days |
-| **v1.0.0 Total** | | | **✅** | **~3 months** |
-| **v1.1.0 (Phase 6)** | | | **✅** | **1 iteration** |
-| 7. Quick Wins & Branding | Mar 23 | Mar 23, 2025 | ✅ | <1 day |
-| **v1.2.0 Total** | | | **✅** | **Phase 1** |
-| 8. Form Enhancements & Data | Mar 23 | Mar 23, 2025 | ✅ | <1 day |
-| **v1.3.0 Total** | | | **✅** | **Phase 2** |
+| Phase | Start | Complete | Status | Duration | Version |
+|-------|-------|----------|--------|----------|---------|
+| 1. Database Schema | Jan 2025 | Mar 3, 2025 | ✅ | 2 months | v0.3 |
+| 2. API Backend | Feb 2025 | Mar 10, 2025 | ✅ | 3 weeks | v0.5 |
+| 3. Admin UI | Feb 2025 | Mar 13, 2025 | ✅ | 4 weeks | v1.0 |
+| 4. AI Enhancement | Feb 2025 | Mar 14, 2025 | ✅ | 2 weeks | v1.0 |
+| 5. Data Import | Mar 2025 | Mar 16, 2025 | ✅ | 2 weeks | v1.0 |
+| 6. Pricing Calculator | Mar 2025 | Mar 18, 2025 | ✅ | 2 days | v1.1 |
+| **v1.0.0 Total** | Jan 2025 | Mar 16, 2025 | **✅** | **~2.5 months** | Market Data System |
+| **Phase 1: Quick Wins & Branding** | Mar 23, 2025 | Mar 23, 2025 | ✅ | <1 day | v1.2 |
+| **Phase 2: Form Enhancements** | Mar 23, 2025 | Mar 23, 2025 | ✅ | <1 day | v1.3 |
+| **Phase 3: Period Pricing & Margins** | Mar 23, 2026 | Mar 23, 2026 | ✅ | <1 day | v1.4 |
+| **Phase 4: Knowledge & Experiences** | Mar 23, 2026 | Mar 23, 2026 | ✅ | <1 day | v1.5 |
+| **Phase 5: Admin Analytics** | Mar 23, 2026 | Mar 23, 2026 | ✅ | <1 day | v1.6 |
+| **v1.2.0-v1.6.0 Total** | Mar 23, 2025 | Mar 23, 2026 | **✅** | **5 Phases** | Customer Feedback |
 
 ---
 
