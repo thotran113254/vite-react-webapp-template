@@ -26,6 +26,7 @@ const ComboCalculatorPage = lazy(() => import("@/pages/combo-calculator-page"));
 const PricingManagementPage = lazy(() => import("@/pages/pricing-management-page"));
 const KnowledgeContributionPage = lazy(() => import("@/pages/knowledge-contribution-page"));
 const KnowledgeReviewPage = lazy(() => import("@/pages/knowledge-review-page"));
+const AdminAnalyticsPage = lazy(() => import("@/pages/admin-analytics-page"));
 
 function PageLoader() {
   return (
@@ -71,6 +72,7 @@ export function App() {
               <Route path="/pricing" element={<PricingManagementPage />} />
               <Route path="/knowledge-contribute" element={<KnowledgeContributionPage />} />
               <Route path="/knowledge-reviews" element={<KnowledgeReviewPage />} />
+              <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
             </Route>
           </Route>
 

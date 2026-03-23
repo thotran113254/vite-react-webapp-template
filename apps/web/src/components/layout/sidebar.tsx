@@ -13,6 +13,7 @@ import {
   Banknote,
   BookPlus,
   ClipboardCheck,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -39,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/knowledge-base", label: "Cơ sở tri thức", icon: BookOpen, adminOnly: true },
   { to: "/settings/ai", label: "Cài đặt AI", icon: Settings, adminOnly: true },
   { to: "/users", label: "Người dùng", icon: Users, adminOnly: true },
+  { to: "/admin/analytics", label: "Báo cáo & Phân tích", icon: BarChart3, adminOnly: true },
 ];
 
 /** Sidebar navigation with role-based link visibility. */

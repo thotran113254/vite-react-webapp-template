@@ -171,6 +171,11 @@ export async function sendMessage(
     .values({ sessionId, role: "assistant", content: aiResponse, metadata: {} })
     .returning();
 
+  await db
+    .update(chatSessions)
+    .set({ lastMessageAt: new Date() })
+    .where(eq(chatSessions.id, sessionId));
+
   return [toMessage(userMsg!), toMessage(assistantMsg!)];
 }
 
@@ -244,9 +249,15 @@ export async function saveAssistantMessage(
   fullContent: string,
   metadata?: Record<string, unknown>,
 ): Promise<ChatMessage> {
+  const now = new Date();
   const [row] = await db
     .insert(chatMessages)
     .values({ sessionId, role: "assistant", content: fullContent, metadata: metadata ?? {} })
     .returning();
+  // Update lastMessageAt so analytics can track session activity
+  await db
+    .update(chatSessions)
+    .set({ lastMessageAt: now })
+    .where(eq(chatSessions.id, sessionId));
   return toMessage(row!);
 }

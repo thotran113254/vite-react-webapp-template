@@ -20,6 +20,7 @@ export const chatSessions = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }),
   },
   (table) => [index("chat_sessions_user_id_idx").on(table.userId)],
 );

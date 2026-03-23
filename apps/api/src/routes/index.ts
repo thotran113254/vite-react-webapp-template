@@ -15,6 +15,7 @@ import { experiencesRoutes } from "../modules/market-data/experiences-routes.js"
 import { knowledgeReviewRoutes } from "../modules/knowledge-review/knowledge-review-routes.js";
 import { uploadRoutes } from "../modules/upload/upload-routes.js";
 import { comboCalculatorRoutes } from "../modules/pricing/combo-calculator-routes.js";
+import { analyticsRoutes } from "../modules/admin-analytics/analytics-routes.js";
 import {
   propertyDetailRoutes,
   propertyRoomRoutes,
@@ -112,6 +113,9 @@ routes.route("/transport-providers", transportPricingRoutes);
 
 // Combo calculator: /combo-calculator/calculate
 routes.route("/combo-calculator", comboCalculatorRoutes);
+
+// Admin analytics: /admin/analytics/*
+routes.route("/admin/analytics", analyticsRoutes);
 
 // File upload: /upload
 routes.route("/upload", uploadRoutes);
