@@ -46,7 +46,7 @@ export default function MarketsPage() {
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">{markets.length} thị trường</p>
         </div>
         {isAdmin && (
-          <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => navigate("/markets/new")}>
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate("/markets/new")}>
             <Plus className="mr-2 h-4 w-4" /> Thêm thị trường
           </Button>
         )}
@@ -90,7 +90,7 @@ export default function MarketsPage() {
           {markets.map((market) => (
             <button
               key={market.id}
-              className="rounded-lg border border-[var(--border)] bg-[var(--card)] overflow-hidden text-left transition-shadow hover:shadow-md hover:border-teal-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="rounded-lg border border-[var(--border)] bg-[var(--card)] overflow-hidden text-left transition-shadow hover:shadow-md hover:border-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               onClick={() => navigate(`/markets/${market.id}`)}
             >
               {/* Cover image */}
@@ -100,8 +100,8 @@ export default function MarketsPage() {
                     loading="lazy" className="h-full w-full object-cover" />
                 </div>
               ) : (
-                <div className="aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20">
-                  <Globe className="h-10 w-10 text-teal-300" />
+                <div className="aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                  <Globe className="h-10 w-10 text-blue-300" />
                 </div>
               )}
               <div className="p-4">

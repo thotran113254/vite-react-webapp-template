@@ -44,7 +44,7 @@ export function DashboardResourceBreakdown(props: ResourceBreakdownProps) {
         <CardTitle className="text-lg">Tài nguyên ({props.total})</CardTitle>
         <Link
           to="/resources"
-          className="inline-flex items-center text-sm text-teal-600 hover:text-teal-700 dark:text-teal-400"
+          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
         >
           Quản lý <ArrowRight className="ml-1 h-4 w-4" />
         </Link>

@@ -95,7 +95,7 @@ export function StaffChatViewerTab() {
               onClick={() => setActiveSession(session)}
               className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--accent)]"
             >
-              <MessageSquare className="h-4 w-4 shrink-0 text-teal-500" />
+              <MessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{session.title}</p>
                 <p className="text-xs text-[var(--muted-foreground)]">{formatDate(session.createdAt)}</p>

@@ -48,7 +48,7 @@ export default function AiSettingsPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.id
-                ? "border-teal-600 text-teal-600"
+                ? "border-blue-600 text-blue-600"
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -138,7 +138,7 @@ function DataSettingsTab() {
               <button
                 type="button" role="switch" aria-checked={s.isEnabled} disabled={mutation.isPending}
                 onClick={() => mutation.mutate({ category: s.dataCategory, isEnabled: !s.isEnabled })}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors disabled:opacity-50 ${s.isEnabled ? "bg-teal-600" : "bg-[var(--muted)]"}`}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors disabled:opacity-50 ${s.isEnabled ? "bg-blue-600" : "bg-[var(--muted)]"}`}
               >
                 <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${s.isEnabled ? "translate-x-5" : "translate-x-0"}`} />
               </button>
@@ -212,7 +212,7 @@ function ConfigRow({ config, saveMut, resetMut }: {
           {changed && (
             <button onClick={() => saveMut.mutate({ configKey: config.configKey, configValue: value })}
               disabled={saveMut.isPending}
-              className="text-xs px-3 py-1.5 rounded bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50">Lưu</button>
+              className="text-xs px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">Lưu</button>
           )}
           <button onClick={() => { resetMut.mutate(config.configKey); }}
             disabled={resetMut.isPending}
@@ -267,7 +267,7 @@ function PromptEditor({ config, saveMut, resetMut }: {
           {changed && (
             <button onClick={() => saveMut.mutate({ configKey: config.configKey, configValue: value })}
               disabled={saveMut.isPending}
-              className="text-xs px-3 py-1.5 rounded bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50">Lưu</button>
+              className="text-xs px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">Lưu</button>
           )}
           <button onClick={() => resetMut.mutate(config.configKey)}
             disabled={resetMut.isPending} title="Reset về mặc định"
@@ -350,7 +350,7 @@ function SkillCard({ prompt, model, temp, saveMut, resetMut }: {
         <div className="flex items-center gap-2">
           {anyChanged && (
             <button onClick={saveAll} disabled={saveMut.isPending}
-              className="text-xs px-3 py-1.5 rounded bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50">Lưu tất cả</button>
+              className="text-xs px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">Lưu tất cả</button>
           )}
           <button onClick={resetAll} disabled={resetMut.isPending} title="Reset tất cả về mặc định"
             className="text-xs px-2 py-1.5 rounded border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-50">

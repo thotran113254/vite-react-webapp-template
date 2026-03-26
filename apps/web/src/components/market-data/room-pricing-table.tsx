@@ -150,7 +150,7 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Bảng giá</p>
         {isAdmin && (
-          <Button size="sm" variant="ghost" className="text-xs text-teal-600 h-6 px-2" onClick={openAdd}>
+          <Button size="sm" variant="ghost" className="text-xs text-blue-600 h-6 px-2" onClick={openAdd}>
             <Plus className="mr-0.5 h-3 w-3" /> Thêm giá
           </Button>
         )}
@@ -167,15 +167,15 @@ export function PricingTable({ room, isAdmin }: { room: PropertyRoom; isAdmin: b
           : "";
         const displayName = first.seasonName === "default" ? "Mặc định" : first.seasonName;
         return (
-          <div key={key} className="border-l-2 border-teal-200 pl-2 mb-2">
+          <div key={key} className="border-l-2 border-blue-200 pl-2 mb-2">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">
                 {displayName}{dateRange}
               </p>
               {isAdmin && (
                 <>
                   <button
-                    className="text-[var(--muted-foreground)] hover:text-teal-600"
+                    className="text-[var(--muted-foreground)] hover:text-blue-600"
                     title="Sửa giai đoạn"
                     onClick={() => openEdit(rows)}
                   >

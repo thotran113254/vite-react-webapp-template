@@ -102,7 +102,7 @@ export function CustomerJourneysTab({ marketId, isAdmin }: CustomerJourneysTabPr
     <div className="space-y-4">
       {isAdmin && (
         <div className="flex justify-end">
-          <Button className="bg-teal-600 hover:bg-teal-700" onClick={openAdd}>
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={openAdd}>
             <Plus className="mr-2 h-4 w-4" /> Thêm mới
           </Button>
         </div>
@@ -198,7 +198,7 @@ export function CustomerJourneysTab({ marketId, isAdmin }: CustomerJourneysTabPr
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700" disabled={saveMutation.isPending || !form.stageName} onClick={() => saveMutation.mutate()}>
+            <Button className="bg-blue-600 hover:bg-blue-700" disabled={saveMutation.isPending || !form.stageName} onClick={() => saveMutation.mutate()}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>

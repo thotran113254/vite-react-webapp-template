@@ -50,8 +50,8 @@ export function ChatSuggestionChips({ onSelect }: ChatSuggestionChipsProps) {
           onClick={() => onSelect(suggestion)}
           className={cn(
             "rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors",
-            "hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:hover:bg-teal-900/30 dark:hover:text-teal-300 dark:hover:border-teal-700",
-            "focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-1 dark:focus:ring-offset-[var(--background)]",
+            "hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-900/30 dark:hover:text-blue-300 dark:hover:border-blue-700",
+            "focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 dark:focus:ring-offset-[var(--background)]",
           )}
         >
           {suggestion}

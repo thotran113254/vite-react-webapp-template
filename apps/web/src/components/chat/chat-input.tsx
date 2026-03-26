@@ -139,8 +139,8 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           onClick={handleSend}
           disabled={disabled}
           className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white transition-colors",
-            "hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1",
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors",
+            "hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
             "disabled:pointer-events-none disabled:opacity-50",
           )}
           aria-label="Gửi tin nhắn"

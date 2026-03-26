@@ -125,14 +125,14 @@ export function PricingSeasonsTab() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <CalendarRange className="h-5 w-5 text-teal-600" />
+            <CalendarRange className="h-5 w-5 text-blue-600" />
             <h2 className="text-lg font-semibold">Mùa giá</h2>
           </div>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">
             Định nghĩa các mùa giá theo thời điểm. Khi tạo bảng giá phòng, chọn mùa tương ứng để áp giá riêng.
           </p>
         </div>
-        <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-8" onClick={openAdd}>
+        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-8" onClick={openAdd}>
           <Plus className="mr-1 h-3 w-3" /> Thêm mùa
         </Button>
       </div>
@@ -147,7 +147,7 @@ export function PricingSeasonsTab() {
         {items.map((item) => {
           const cfg = item.config as { startDate?: string; endDate?: string } | undefined;
           return (
-            <div key={item.id} className="rounded-lg border border-[var(--border)] p-3 group hover:border-teal-300 transition-colors">
+            <div key={item.id} className="rounded-lg border border-[var(--border)] p-3 group hover:border-blue-300 transition-colors">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="font-semibold text-sm">{item.label}</span>
@@ -159,7 +159,7 @@ export function PricingSeasonsTab() {
                 </div>
               </div>
               {cfg?.startDate && cfg?.endDate && (
-                <p className={`text-xs mt-1 ${isCrossYear(cfg.startDate, cfg.endDate) ? "text-amber-600" : "text-teal-600"}`}>
+                <p className={`text-xs mt-1 ${isCrossYear(cfg.startDate, cfg.endDate) ? "text-amber-600" : "text-blue-600"}`}>
                   {describeRange(cfg.startDate, cfg.endDate)}
                 </p>
               )}
@@ -247,7 +247,7 @@ export function PricingSeasonsTab() {
             {form.startDate && form.endDate && (
               <div className={`text-xs px-2 py-1 rounded ${isCrossYear(form.startDate, form.endDate)
                 ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
-                : "bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400"}`}>
+                : "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"}`}>
                 {describeRange(form.startDate, form.endDate)}
                 {isCrossYear(form.startDate, form.endDate) && (
                   <span className="block text-[10px] opacity-80 mt-0.5">VD: Tháng 11 năm nay → Tháng 2 năm sau</span>
@@ -280,7 +280,7 @@ export function PricingSeasonsTab() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700"
+            <Button className="bg-blue-600 hover:bg-blue-700"
               disabled={saveMutation.isPending || !form.optionKey || !form.label || !MM_DD_REGEX.test(form.startDate) || !MM_DD_REGEX.test(form.endDate)}
               onClick={() => { setSaveError(null); saveMutation.mutate(); }}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}

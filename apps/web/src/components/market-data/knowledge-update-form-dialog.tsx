@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { apiClient } from "@/lib/api-client";
 import type { MarketKnowledgeUpdate } from "@app/shared";
 
-const KNOWLEDGE_ASPECTS = [
+/** Suggested aspects — users can type any value freely. */
+const ASPECT_SUGGESTIONS = [
   "Văn hóa", "Khí hậu", "Giao thông", "An ninh",
   "Dịch vụ", "Giá cả", "Mua sắm", "Ẩm thực",
   "Lưu trú", "Hoạt động", "Khác",
@@ -22,7 +24,7 @@ interface Props {
 }
 
 type FormState = { aspect: string; knowledge: string };
-const EMPTY: FormState = { aspect: KNOWLEDGE_ASPECTS[0] ?? "Văn hóa", knowledge: "" };
+const EMPTY: FormState = { aspect: "", knowledge: "" };
 
 /** Form dialog for creating/editing a knowledge update entry. */
 export function KnowledgeUpdateFormDialog({ open, onOpenChange, marketId, editItem, isAdmin, onSuccess }: Props) {
@@ -62,15 +64,17 @@ export function KnowledgeUpdateFormDialog({ open, onOpenChange, marketId, editIt
         <div className="space-y-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium">Khía cạnh *</label>
-            <select
-              className="flex h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-sm"
+            <Input
+              list="aspect-suggestions"
+              placeholder="Nhập hoặc chọn khía cạnh..."
               value={form.aspect}
               onChange={(e) => setForm((s) => ({ ...s, aspect: e.target.value }))}
-            >
-              {KNOWLEDGE_ASPECTS.map((a) => (
-                <option key={a} value={a}>{a}</option>
+            />
+            <datalist id="aspect-suggestions">
+              {ASPECT_SUGGESTIONS.map((a) => (
+                <option key={a} value={a} />
               ))}
-            </select>
+            </datalist>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -92,7 +96,7 @@ export function KnowledgeUpdateFormDialog({ open, onOpenChange, marketId, editIt
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={saveMutation.isPending || !isValid}
             onClick={() => saveMutation.mutate()}
           >

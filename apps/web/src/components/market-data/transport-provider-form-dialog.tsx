@@ -123,7 +123,7 @@ export function TransportProviderFormDialog({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={isSaving || !form.providerName || !form.routeName}
             onClick={onSave}
           >

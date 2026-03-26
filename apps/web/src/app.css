@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Brand color palette (blue) */
+:root {
+  --brand: oklch(0.546 0.245 262.881);       /* blue-600 */
+  --brand-hover: oklch(0.488 0.243 264.376);  /* blue-700 */
+  --brand-light: oklch(0.932 0.032 255.585);  /* blue-100 */
+  --brand-dark: oklch(0.379 0.146 265.522);   /* blue-900 */
+}
+
 /* shadcn/ui CSS variables - light mode */
 :root {
   --background: oklch(1 0 0);

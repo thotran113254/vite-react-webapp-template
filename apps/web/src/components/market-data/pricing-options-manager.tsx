@@ -121,7 +121,7 @@ export function PricingOptionsManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Settings2 className="h-5 w-5 text-teal-600" />
+        <Settings2 className="h-5 w-5 text-blue-600" />
         <h2 className="text-lg font-semibold">Cấu hình Combo & Loại ngày</h2>
       </div>
 
@@ -134,7 +134,7 @@ export function PricingOptionsManager() {
         {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
           <button key={key} onClick={() => setActiveCategory(key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              activeCategory === key ? "border-teal-600 text-teal-700" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              activeCategory === key ? "border-blue-600 text-blue-700" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}>
             {label}
           </button>
@@ -145,7 +145,7 @@ export function PricingOptionsManager() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-[var(--muted-foreground)]">{items.length} mục</p>
-          <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-7 text-xs" onClick={openAdd}><Plus className="mr-1 h-3 w-3" /> Thêm</Button>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs" onClick={openAdd}><Plus className="mr-1 h-3 w-3" /> Thêm</Button>
         </div>
 
         {items.length === 0 && <p className="text-sm text-[var(--muted-foreground)] py-4 text-center">Chưa có mục nào</p>}
@@ -161,7 +161,7 @@ export function PricingOptionsManager() {
                   {!item.isActive && <Badge variant="secondary">Ẩn</Badge>}
                   {/* Show day badges for day_type */}
                   {item.category === "day_type" && days.length > 0 && (
-                    <span className="text-[10px] bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 px-1.5 py-0.5 rounded">{dayLabels(days)}</span>
+                    <span className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-1.5 py-0.5 rounded">{dayLabels(days)}</span>
                   )}
                   {item.category === "day_type" && isHoliday && (
                     <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded">Ngày lễ</span>
@@ -214,8 +214,8 @@ export function PricingOptionsManager() {
                     <button key={w.value} type="button" onClick={() => toggleDay(w.value)}
                       className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
                         form.days.includes(w.value)
-                          ? "bg-teal-600 text-white border-teal-600"
-                          : "bg-[var(--background)] text-[var(--muted-foreground)] border-[var(--border)] hover:border-teal-400"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-[var(--background)] text-[var(--muted-foreground)] border-[var(--border)] hover:border-blue-400"
                       }`}>
                       {w.label}
                     </button>
@@ -246,7 +246,7 @@ export function PricingOptionsManager() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700" disabled={saveMutation.isPending || !form.optionKey || !form.label}
+            <Button className="bg-blue-600 hover:bg-blue-700" disabled={saveMutation.isPending || !form.optionKey || !form.label}
               onClick={() => saveMutation.mutate()}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>

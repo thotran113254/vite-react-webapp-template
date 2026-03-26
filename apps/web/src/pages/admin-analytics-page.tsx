@@ -21,8 +21,8 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30">
-          <BarChart3 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+          <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <h1 className="text-xl font-semibold text-[var(--foreground)]">Báo cáo & Phân tích</h1>

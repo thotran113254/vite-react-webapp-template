@@ -28,7 +28,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Chính sách": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
   "Hướng dẫn": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
   "Điểm đến": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-  "Dịch vụ": "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200",
+  "Dịch vụ": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
 };
 
 /** Admin knowledge base management page with CRUD and filters. */
@@ -108,7 +108,7 @@ export default function KnowledgeBasePage() {
               onClick={() => { setStatusFilter(f); setPage(1); }}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 statusFilter === f
-                  ? "bg-teal-600 text-white"
+                  ? "bg-blue-600 text-white"
                   : "bg-[var(--muted)]/40 text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
               }`}
             >

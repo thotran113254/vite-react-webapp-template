@@ -99,15 +99,15 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
 
       {/* Property pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <Building2 className="h-4 w-4 text-teal-600 shrink-0" />
+        <Building2 className="h-4 w-4 text-blue-600 shrink-0" />
         {filtered.map((p) => {
           const active = p.id === propertyId;
           return (
             <button key={p.id} onClick={() => setPropertyId(p.id)}
               className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
                 active
-                  ? "bg-teal-600 text-white border-teal-600 shadow-sm"
-                  : "bg-[var(--card)] text-[var(--muted-foreground)] border-[var(--border)] hover:border-teal-400 hover:text-teal-700 dark:hover:text-teal-400"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                  : "bg-[var(--card)] text-[var(--muted-foreground)] border-[var(--border)] hover:border-blue-400 hover:text-blue-700 dark:hover:text-blue-400"
               }`}>
               {p.name}
               {p.starRating && <span className="ml-1 text-xs opacity-70">{p.starRating}★</span>}
@@ -142,7 +142,7 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
         <div className="flex items-center justify-between">
           <p className="text-xs font-medium text-[var(--muted-foreground)]">{rooms.length} phòng</p>
           {isAdmin && (
-            <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-7 text-xs"
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs"
               onClick={() => { setRoomForm(EMPTY_ROOM); setRoomDialog(true); }}>
               <Plus className="mr-1 h-3 w-3" /> Thêm phòng
             </Button>
@@ -160,7 +160,7 @@ export function PricingRoomOverviewTab({ marketId, isAdmin }: { marketId: string
       {rooms.map((room) => (
         <div key={room.id} className="border border-[var(--border)] rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2">
-            <DoorOpen className="h-4 w-4 text-teal-600 shrink-0" />
+            <DoorOpen className="h-4 w-4 text-blue-600 shrink-0" />
             <span className="text-sm font-semibold text-[var(--foreground)]">{room.roomType}</span>
             {room.bookingCode && <span className="text-xs font-mono text-[var(--muted-foreground)]">{room.bookingCode}</span>}
             <span className="text-xs text-[var(--muted-foreground)]">{room.capacity} người</span>

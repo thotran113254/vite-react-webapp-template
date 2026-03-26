@@ -135,16 +135,16 @@ export function PropertiesTab({ marketId, isAdmin }: PropertiesTabProps) {
       <div className="flex items-center justify-between">
         <div className="flex gap-1 rounded-md border border-[var(--border)] p-0.5">
           <button type="button" onClick={() => setViewMode("table")}
-            className={`rounded px-2 py-1 text-xs ${viewMode === "table" ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" : "text-[var(--muted-foreground)]"}`}>
+            className={`rounded px-2 py-1 text-xs ${viewMode === "table" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "text-[var(--muted-foreground)]"}`}>
             <List className="h-3.5 w-3.5" />
           </button>
           <button type="button" onClick={() => setViewMode("cards")}
-            className={`rounded px-2 py-1 text-xs ${viewMode === "cards" ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" : "text-[var(--muted-foreground)]"}`}>
+            className={`rounded px-2 py-1 text-xs ${viewMode === "cards" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "text-[var(--muted-foreground)]"}`}>
             <LayoutGrid className="h-3.5 w-3.5" />
           </button>
         </div>
         {isAdmin && (
-          <Button className="bg-teal-600 hover:bg-teal-700" onClick={openAdd}><Plus className="mr-2 h-4 w-4" /> Thêm mới</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={openAdd}><Plus className="mr-2 h-4 w-4" /> Thêm mới</Button>
         )}
       </div>
 
@@ -224,7 +224,7 @@ export function PropertiesTab({ marketId, isAdmin }: PropertiesTabProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFormOpen(false)}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700" disabled={saveMutation.isPending || !form.name} onClick={() => saveMutation.mutate()}>
+            <Button className="bg-blue-600 hover:bg-blue-700" disabled={saveMutation.isPending || !form.name} onClick={() => saveMutation.mutate()}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>

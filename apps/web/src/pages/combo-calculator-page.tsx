@@ -163,7 +163,7 @@ export default function ComboCalculatorPage() {
     <div className="flex h-full flex-col">
       {/* Page header */}
       <div className="flex items-center gap-3 border-b border-[var(--border)] px-6 py-4">
-        <Calculator className="h-5 w-5 text-teal-600" />
+        <Calculator className="h-5 w-5 text-blue-600" />
         <h1 className="text-xl font-semibold text-[var(--foreground)]">Tính giá combo</h1>
       </div>
 
@@ -243,7 +243,7 @@ export default function ComboCalculatorPage() {
                   </div>
                 ))}
                 {!allSameDayType && (
-                  <p className="text-xs text-teal-600">Lịch hỗn hợp: các đêm có loại ngày khác nhau</p>
+                  <p className="text-xs text-blue-600">Lịch hỗn hợp: các đêm có loại ngày khác nhau</p>
                 )}
               </div>
             )}
@@ -301,7 +301,7 @@ export default function ComboCalculatorPage() {
           </div>
 
           <Button
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             disabled={!canSubmit || calcMutation.isPending}
             onClick={() => calcMutation.mutate()}
           >

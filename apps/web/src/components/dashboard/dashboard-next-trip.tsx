@@ -30,7 +30,7 @@ export function DashboardNextTrip({ trip }: DashboardNextTripProps) {
   const daysUntil = getDaysUntilTrip(trip.startDate);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-600 to-teal-800 text-white shadow-lg">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg">
       {/* Background cover image overlay */}
       {trip.coverImage && (
         <div
@@ -64,25 +64,25 @@ export function DashboardNextTrip({ trip }: DashboardNextTripProps) {
 
         {/* Trip title & destination */}
         <h2 className="mb-1 text-2xl font-bold leading-tight">{trip.title}</h2>
-        <p className="mb-4 flex items-center gap-1 text-teal-100">
+        <p className="mb-4 flex items-center gap-1 text-blue-100">
           <MapPin className="h-4 w-4" />
           {trip.destination}
         </p>
 
         {/* Stats row */}
         <div className="mb-6 flex flex-wrap gap-4 text-sm">
-          <div className="flex items-center gap-1.5 text-teal-100">
+          <div className="flex items-center gap-1.5 text-blue-100">
             <Calendar className="h-4 w-4" />
             <span>
               {formatDate(trip.startDate)} — {formatDate(trip.endDate)}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-teal-100">
+          <div className="flex items-center gap-1.5 text-blue-100">
             <Plane className="h-4 w-4" />
             <span>{duration} ngày</span>
           </div>
           {trip.guests > 0 && (
-            <div className="flex items-center gap-1.5 text-teal-100">
+            <div className="flex items-center gap-1.5 text-blue-100">
               <Users className="h-4 w-4" />
               <span>{trip.guests} khách</span>
             </div>
@@ -93,14 +93,14 @@ export function DashboardNextTrip({ trip }: DashboardNextTripProps) {
         <div className="flex items-center gap-3">
           <Link
             to={`/itinerary/${trip.id}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-teal-700 shadow transition hover:bg-teal-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow transition hover:bg-blue-50"
           >
             Xem lịch trình
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             to={`/itinerary/${trip.id}/edit`}
-            className="inline-flex items-center gap-1.5 text-sm text-teal-100 underline-offset-2 hover:text-white hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-blue-100 underline-offset-2 hover:text-white hover:underline"
           >
             <Edit2 className="h-3.5 w-3.5" />
             Chỉnh sửa

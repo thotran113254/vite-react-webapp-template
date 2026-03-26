@@ -22,7 +22,7 @@ export function ComboResultCard({ result, isAdmin }: Props) {
   return (
     <div className="border border-[var(--border)] rounded-lg bg-[var(--card)] overflow-hidden">
       {/* Header */}
-      <div className="bg-teal-600 px-4 py-3 text-white">
+      <div className="bg-blue-600 px-4 py-3 text-white">
         <p className="font-semibold">{input.numPeople} người · {nightLabel} · {dayLabel}</p>
       </div>
 
@@ -118,7 +118,7 @@ export function ComboResultCard({ result, isAdmin }: Props) {
           </div>
           <div className="flex items-center justify-between font-semibold text-base border-t border-[var(--border)] pt-2">
             <span>Tổng cộng</span>
-            <span className="text-teal-700">{fmtVnd(grandTotal)}</span>
+            <span className="text-blue-700">{fmtVnd(grandTotal)}</span>
           </div>
           {isAdmin && discountSubtotal != null && (
             <div className="flex items-center justify-between text-orange-500 text-xs">
@@ -129,9 +129,9 @@ export function ComboResultCard({ result, isAdmin }: Props) {
         </div>
 
         {/* Per person highlight */}
-        <div className="rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 p-4 text-center">
-          <p className="text-xs text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-1">Giá mỗi người</p>
-          <p className="text-3xl font-bold text-teal-700 dark:text-teal-300">{fmtVnd(perPerson)}</p>
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 text-center">
+          <p className="text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Giá mỗi người</p>
+          <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{fmtVnd(perPerson)}</p>
           {isAdmin && discountPerPerson != null && (
             <p className="text-sm text-orange-500 mt-1">CK: {fmtVnd(discountPerPerson)}/người</p>
           )}

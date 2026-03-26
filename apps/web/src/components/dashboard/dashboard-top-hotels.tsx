@@ -25,7 +25,7 @@ export function DashboardTopHotels({ hotels }: { hotels: TopHotel[] }) {
                 key={h.id}
                 className="flex items-center gap-3 rounded-lg border border-[var(--border)] p-3"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                   {idx + 1}
                 </div>
                 <div className="min-w-0 flex-1">

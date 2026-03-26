@@ -31,11 +31,11 @@ export function ItineraryDaySection({ dayNumber, items, tripStartDate }: Props) 
     <section>
       {/* Day header */}
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
           {dayNumber}
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-teal-600">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
             Ngày {dayNumber}
           </p>
           <h3 className="text-base font-semibold text-[var(--foreground)]">

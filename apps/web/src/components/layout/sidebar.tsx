@@ -58,7 +58,7 @@ export function Sidebar() {
     <aside className="flex h-full w-64 flex-col border-r border-[var(--border)] bg-[var(--card)]">
       {/* Logo / Brand */}
       <div className="flex h-16 items-center border-b border-[var(--border)] px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
           <Compass className="h-4 w-4 text-white" />
         </div>
         <span className="ml-2 text-lg font-semibold text-[var(--foreground)]">
@@ -84,8 +84,8 @@ export function Sidebar() {
                   cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
-                      : "text-[var(--muted-foreground)] hover:bg-teal-50/50 hover:text-teal-700 dark:hover:bg-teal-900/20 dark:hover:text-teal-300",
+                      ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                      : "text-[var(--muted-foreground)] hover:bg-blue-50/50 hover:text-blue-700 dark:hover:bg-blue-900/20 dark:hover:text-blue-300",
                   )
                 }
               >

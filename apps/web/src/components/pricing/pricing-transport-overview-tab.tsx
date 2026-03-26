@@ -59,7 +59,7 @@ export function PricingTransportOverviewTab({ marketId, isAdmin }: { marketId: s
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium text-[var(--muted-foreground)]">{providers.length} nhà xe/tàu</p>
         {isAdmin && (
-          <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-7 text-xs"
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs"
             onClick={() => { setProvForm(EMPTY_PROVIDER_FORM); setProvDialog(true); }}>
             <Plus className="mr-1 h-3 w-3" /> Thêm nhà xe/tàu
           </Button>
@@ -79,7 +79,7 @@ export function PricingTransportOverviewTab({ marketId, isAdmin }: { marketId: s
         return (
           <div key={prov.id} className="border border-[var(--border)] rounded-lg p-3 space-y-1">
             <div className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-teal-600 shrink-0" />
+              <Icon className="h-4 w-4 text-blue-600 shrink-0" />
               <span className="text-sm font-semibold text-[var(--foreground)]">{prov.providerName}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                 isFerry

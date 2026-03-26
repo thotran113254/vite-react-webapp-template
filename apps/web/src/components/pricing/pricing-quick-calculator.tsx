@@ -63,7 +63,7 @@ export function PricingQuickCalculator({ marketSlug, propertySlug }: Props) {
     <div className="border-t border-[var(--border)] bg-[var(--card)]">
       {/* Toggle header */}
       <button onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-teal-700 dark:text-teal-400 hover:bg-[var(--muted)]/30 transition-colors">
+        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-blue-700 dark:text-blue-400 hover:bg-[var(--muted)]/30 transition-colors">
         <Calculator className="h-4 w-4" />
         <span>Tính nhanh</span>
         {open ? <ChevronDown className="h-4 w-4 ml-auto" /> : <ChevronRight className="h-4 w-4 ml-auto" />}
@@ -129,7 +129,7 @@ export function PricingQuickCalculator({ marketSlug, propertySlug }: Props) {
                 </select>
               </div>
             )}
-            <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-8 px-4"
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-8 px-4"
               disabled={calcMutation.isPending} onClick={() => calcMutation.mutate()}>
               {calcMutation.isPending ? <Spinner size="sm" /> : "Tính"}
             </Button>
@@ -152,7 +152,7 @@ export function PricingQuickCalculator({ marketSlug, propertySlug }: Props) {
 
           {/* Result */}
           {result && (
-            <div className="flex items-center gap-4 text-sm bg-teal-50 dark:bg-teal-900/20 rounded-lg px-3 py-2 flex-wrap">
+            <div className="flex items-center gap-4 text-sm bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2 flex-wrap">
               <div>
                 <span className="text-[var(--muted-foreground)] text-xs">Tổng:</span>
                 <span className="ml-1 font-bold text-[var(--foreground)]">{fmtVnd(result.grandTotal)}</span>

@@ -69,7 +69,7 @@ export default function HotelSearchPage() {
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
             Thử điều chỉnh bộ lọc để xem thêm kết quả.
           </p>
-          <Button className="mt-4 bg-teal-600 hover:bg-teal-700" onClick={() => handleFiltersChange({})}>
+          <Button className="mt-4 bg-blue-600 hover:bg-blue-700" onClick={() => handleFiltersChange({})}>
             Xóa bộ lọc
           </Button>
         </div>
@@ -97,7 +97,7 @@ export default function HotelSearchPage() {
       {/* Xem bản đồ floating button */}
       {items.length > 0 && (
         <div className="flex justify-center pb-4">
-          <Button className="rounded-full bg-teal-600 px-6 shadow-lg hover:bg-teal-700">
+          <Button className="rounded-full bg-blue-600 px-6 shadow-lg hover:bg-blue-700">
             <MapPin className="mr-2 h-4 w-4" />
             Xem bản đồ
           </Button>

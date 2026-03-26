@@ -113,7 +113,7 @@ export function TransportPricingEditor({ providerId, isAdmin }: TransportPricing
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Bảng giá vé</p>
         {isAdmin && (
-          <Button size="sm" variant="ghost" className="text-xs text-teal-600 h-6 px-2" onClick={openAdd}>
+          <Button size="sm" variant="ghost" className="text-xs text-blue-600 h-6 px-2" onClick={openAdd}>
             <Plus className="mr-0.5 h-3 w-3" /> Thêm giá
           </Button>
         )}

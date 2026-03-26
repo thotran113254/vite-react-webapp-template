@@ -129,7 +129,7 @@ export function PricingPriceMatrix({ room, isAdmin }: { room: PropertyRoom; isAd
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-[var(--muted-foreground)]">{byPeriod.size} giai đoạn</span>
         {isAdmin && (
-          <Button size="sm" variant="ghost" className="text-xs text-teal-600 h-6 px-2 shrink-0" onClick={openAdd}>
+          <Button size="sm" variant="ghost" className="text-xs text-blue-600 h-6 px-2 shrink-0" onClick={openAdd}>
             <Plus className="mr-0.5 h-3 w-3" /> Thêm giá
           </Button>
         )}
@@ -149,11 +149,11 @@ export function PricingPriceMatrix({ room, isAdmin }: { room: PropertyRoom; isAd
         return (
           <div key={key} className="mb-3">
             <div
-              className={`flex items-center gap-1.5 mb-1 ${isAdmin ? "cursor-pointer hover:text-teal-600" : ""}`}
+              className={`flex items-center gap-1.5 mb-1 ${isAdmin ? "cursor-pointer hover:text-blue-600" : ""}`}
               onClick={() => isAdmin && openEditPeriod(rows)}
               title={isAdmin ? "Click để sửa giai đoạn" : undefined}
             >
-              <span className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">
                 {displayName}{dateRange}
               </span>
             </div>

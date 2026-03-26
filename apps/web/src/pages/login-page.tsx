@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import type { LoginInput } from "@app/shared";
 
-/** Login page styled as AI Homesworld Travel with teal branding. */
+/** Login page styled as AI Homesworld Travel with blue branding. */
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -46,14 +46,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-teal-50 to-white dark:from-gray-900 dark:to-gray-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 px-4">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
       <div className="w-full max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-lg">
         {/* Logo & header */}
         <div className="mb-6 flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-600">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
             <Compass size={28} className="text-white" />
           </div>
           <div className="text-center">
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 {...register("email")}
                 className={cn(
                   "h-11 w-full rounded-xl border bg-gray-50 dark:bg-gray-800 py-2 pl-10 pr-4 text-sm text-[var(--foreground)]",
-                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-teal-500",
+                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-blue-500",
                   "disabled:opacity-50",
                   errors.email ? "border-red-400" : "border-gray-200 dark:border-gray-700",
                 )}
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 {...register("password")}
                 className={cn(
                   "h-11 w-full rounded-xl border bg-gray-50 dark:bg-gray-800 py-2 pl-10 pr-10 text-sm text-[var(--foreground)]",
-                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-teal-500",
+                  "placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-blue-500",
                   "disabled:opacity-50",
                   errors.password ? "border-red-400" : "border-gray-200 dark:border-gray-700",
                 )}
@@ -146,7 +146,7 @@ export default function LoginPage() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 accent-teal-600"
+              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 accent-blue-600"
             />
             Ghi nhớ đăng nhập
           </label>
@@ -155,7 +155,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 w-full rounded-xl bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500"
+            className="h-11 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
           >
             {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập →"}
           </Button>
@@ -168,7 +168,7 @@ export default function LoginPage() {
           </p>
           <p className="text-sm text-[var(--muted-foreground)]">
             Chưa có tài khoản?{" "}
-            <span className="font-medium text-teal-600 dark:text-teal-400">Liên hệ Leader</span>
+            <span className="font-medium text-blue-600 dark:text-blue-400">Liên hệ Leader</span>
           </p>
         </div>
       </div>

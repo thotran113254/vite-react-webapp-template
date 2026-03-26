@@ -177,7 +177,7 @@ export function RoomPricingPeriodEditor({ periods, onChange, dayOptions, isAdmin
         );
       })}
 
-      <Button type="button" variant="ghost" size="sm" className="text-xs text-teal-600 h-7" onClick={addPeriod}>
+      <Button type="button" variant="ghost" size="sm" className="text-xs text-blue-600 h-7" onClick={addPeriod}>
         <Plus className="mr-1 h-3 w-3" /> Thêm giai đoạn giá mới
       </Button>
     </div>

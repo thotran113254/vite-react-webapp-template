@@ -49,7 +49,7 @@ export default function PricingManagementPage() {
       {/* Header row: title + market selector + tabs */}
       <div className="border-b border-[var(--border)] px-6 py-3 space-y-3">
         <div className="flex items-center gap-3">
-          <Banknote className="h-5 w-5 text-teal-600" />
+          <Banknote className="h-5 w-5 text-blue-600" />
           <h1 className="text-xl font-bold text-[var(--foreground)]">Quản lý giá</h1>
           {activeTab !== "config" && (
             <div className="ml-4 w-52">
@@ -67,7 +67,7 @@ export default function PricingManagementPage() {
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
                 activeTab === tab.id
-                  ? "border-teal-600 text-teal-700 dark:text-teal-400"
+                  ? "border-blue-600 text-blue-700 dark:text-blue-400"
                   : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]",
               )}>
               {tab.label}

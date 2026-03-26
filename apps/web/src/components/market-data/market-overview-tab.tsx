@@ -72,7 +72,7 @@ export function MarketOverviewTab({ market, isAdmin }: MarketOverviewTabProps) {
       {isAdmin && (
         <div className="flex items-center gap-3">
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={isPending}
             onClick={() => mutate()}
           >

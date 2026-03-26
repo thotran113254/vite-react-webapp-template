@@ -47,7 +47,7 @@ function TitleEditor({ value, onSave, onCancel }: { value: string; onSave: (v: s
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKey}
         onBlur={() => onSave(text.trim() || value)}
-        className="w-full rounded border border-teal-400 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
+        className="w-full rounded border border-blue-400 bg-transparent px-1 py-0.5 text-sm focus:outline-none"
         maxLength={100}
       />
     </div>
@@ -86,7 +86,7 @@ export function ChatSessionSidebar({
         className={cn(
           "group flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition-colors",
           isActive
-            ? "bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
+            ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
             : "text-[var(--foreground)] hover:bg-[var(--accent)]",
         )}
         onClick={() => !isEditing && onSelect(s)}
@@ -117,7 +117,7 @@ export function ChatSessionSidebar({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setEditingId(s.id); }}
-              className="rounded p-1 hover:bg-[var(--accent)] hover:text-teal-600"
+              className="rounded p-1 hover:bg-[var(--accent)] hover:text-blue-600"
               title="Đổi tên"
             >
               <Pencil size={12} />
@@ -154,7 +154,7 @@ export function ChatSessionSidebar({
           disabled={isCreating}
           className={cn(
             "flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm",
-            "text-[var(--muted-foreground)] transition-colors hover:border-teal-500 hover:text-teal-600",
+            "text-[var(--muted-foreground)] transition-colors hover:border-blue-500 hover:text-blue-600",
             "disabled:opacity-50",
           )}
         >

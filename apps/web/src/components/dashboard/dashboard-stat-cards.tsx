@@ -75,7 +75,7 @@ export function DashboardStatCards({ stats }: { stats: DashboardStats }) {
       label: "Đặt phòng",
       value: stats.bookings.total,
       icon: CalendarCheck,
-      colorClass: "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300",
+      colorClass: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
       subtitle: `${stats.bookings.confirmed} xác nhận, ${stats.bookings.pending} chờ`,
     },
     {

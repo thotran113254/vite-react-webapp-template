@@ -18,7 +18,7 @@ function StarDisplay({ rating }: { rating: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={cn("h-4 w-4", i < rating ? "fill-teal-500 text-teal-500" : "fill-none text-gray-300")}
+          className={cn("h-4 w-4", i < rating ? "fill-blue-500 text-blue-500" : "fill-none text-gray-300")}
         />
       ))}
     </div>
@@ -39,13 +39,13 @@ function RoomCard({ room }: { room: HotelRoom }) {
         </div>
       </div>
       <div className="flex flex-col items-end gap-2">
-        <p className="text-lg font-bold text-teal-600">
+        <p className="text-lg font-bold text-blue-600">
           ${room.pricePerNight}
           <span className="ml-1 text-xs font-normal text-[var(--muted-foreground)]">/đêm</span>
         </p>
         <Link
           to={`/hotels/rooms/${room.id}`}
-          className="text-xs font-medium text-teal-600 underline-offset-2 hover:underline"
+          className="text-xs font-medium text-blue-600 underline-offset-2 hover:underline"
         >
           View details
         </Link>
@@ -81,7 +81,7 @@ export default function HotelDetailPage() {
     return (
       <div className="py-20 text-center">
         <p className="text-[var(--foreground)] font-medium">Không tìm thấy khách sạn.</p>
-        <Link to="/hotels" className="mt-2 inline-block text-sm text-teal-600 hover:underline">
+        <Link to="/hotels" className="mt-2 inline-block text-sm text-blue-600 hover:underline">
           Back to hotels
         </Link>
       </div>
@@ -94,9 +94,9 @@ export default function HotelDetailPage() {
     <div className="space-y-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-[var(--muted-foreground)]">
-        <Link to="/" className="hover:text-teal-600">Trang chủ</Link>
+        <Link to="/" className="hover:text-blue-600">Trang chủ</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link to="/hotels" className="hover:text-teal-600">Khách sạn</Link>
+        <Link to="/hotels" className="hover:text-blue-600">Khách sạn</Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-[var(--foreground)] font-medium line-clamp-1">{hotel.name}</span>
       </nav>
@@ -110,7 +110,7 @@ export default function HotelDetailPage() {
             <MapPin className="h-4 w-4" />
             <span>{hotel.location}</span>
           </div>
-          <Badge variant="secondary" className="text-teal-700 bg-teal-50">
+          <Badge variant="secondary" className="text-blue-700 bg-blue-50">
             From ${hotel.priceFrom ?? 0}/đêm
           </Badge>
         </div>
@@ -140,9 +140,9 @@ export default function HotelDetailPage() {
                   return (
                     <div
                       key={amenity}
-                      className="flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-4 py-2 text-sm text-teal-800"
+                      className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800"
                     >
-                      <Icon className="h-4 w-4 text-teal-600" />
+                      <Icon className="h-4 w-4 text-blue-600" />
                       <span>{amenity}</span>
                     </div>
                   );
@@ -192,19 +192,19 @@ export default function HotelDetailPage() {
           </Card>
 
           {/* AI CTA */}
-          <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50">
+          <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardContent className="p-5">
               <div className="mb-3 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-teal-600" />
-                <h3 className="font-semibold text-teal-900">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                <h3 className="font-semibold text-blue-900">
                   Khám phá {hotel.location.split(",")[0]}
                 </h3>
               </div>
-              <p className="mb-4 text-sm text-teal-800">
+              <p className="mb-4 text-sm text-blue-800">
                 Trò chuyện với trợ lý AI để nhận gợi ý cho chuyến đi của bạn.
               </p>
               <Link to="/chat">
-                <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
                   Lên kế hoạch chuyến đi
                 </Button>
               </Link>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BookPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, THead, TBody, TR, TH, TD, TableHeaderRow } from "@/components/ui/data-table";
@@ -9,7 +10,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { apiClient } from "@/lib/api-client";
 import type { Market, MarketKnowledgeUpdate } from "@app/shared";
 
-const KNOWLEDGE_ASPECTS = [
+/** Suggested aspects — users can type any value freely. */
+const ASPECT_SUGGESTIONS = [
   "Văn hóa", "Khí hậu", "Giao thông", "An ninh",
   "Dịch vụ", "Giá cả", "Mua sắm", "Ẩm thực",
   "Lưu trú", "Hoạt động", "Khác",
@@ -23,7 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 type FormState = { marketId: string; aspect: string; knowledge: string };
-const EMPTY: FormState = { marketId: "", aspect: KNOWLEDGE_ASPECTS[0] ?? "Văn hóa", knowledge: "" };
+const EMPTY: FormState = { marketId: "", aspect: "", knowledge: "" };
 
 /** Staff page: submit knowledge contributions + view own submission history. */
 export default function KnowledgeContributionPage() {
@@ -69,7 +71,7 @@ export default function KnowledgeContributionPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <BookPlus className="h-6 w-6 text-teal-600" />
+        <BookPlus className="h-6 w-6 text-blue-600" />
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Đóng góp kiến thức</h1>
       </div>
 
@@ -95,13 +97,15 @@ export default function KnowledgeContributionPage() {
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium">Khía cạnh *</label>
-          <select
-            className="flex h-9 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-sm"
+          <Input
+            list="aspect-suggestions-contrib"
+            placeholder="Nhập hoặc chọn khía cạnh..."
             value={form.aspect}
             onChange={(e) => setForm((s) => ({ ...s, aspect: e.target.value }))}
-          >
-            {KNOWLEDGE_ASPECTS.map((a) => <option key={a} value={a}>{a}</option>)}
-          </select>
+          />
+          <datalist id="aspect-suggestions-contrib">
+            {ASPECT_SUGGESTIONS.map((a) => <option key={a} value={a} />)}
+          </datalist>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -116,7 +120,7 @@ export default function KnowledgeContributionPage() {
 
         <div className="flex justify-end">
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={submitMutation.isPending || !isValid}
             onClick={() => submitMutation.mutate()}
           >

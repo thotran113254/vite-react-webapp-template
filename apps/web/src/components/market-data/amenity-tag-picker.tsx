@@ -40,15 +40,15 @@ export function AmenityTagPicker({ selected, onChange }: AmenityTagPickerProps) 
             onClick={() => toggle(tag)}
             className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
               selected.includes(tag)
-                ? "bg-teal-100 border-teal-300 text-teal-700 dark:bg-teal-900/40 dark:border-teal-700 dark:text-teal-300"
-                : "bg-transparent border-[var(--border)] text-[var(--muted-foreground)] hover:border-teal-300"
+                ? "bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300"
+                : "bg-transparent border-[var(--border)] text-[var(--muted-foreground)] hover:border-blue-300"
             }`}
           >
             {selected.includes(tag) ? "✓ " : ""}{tag}
           </button>
         ))}
         {customTags.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-teal-100 border border-teal-300 px-3 py-1 text-xs font-medium text-teal-700 dark:bg-teal-900/40 dark:border-teal-700 dark:text-teal-300">
+          <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-blue-100 border border-blue-300 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300">
             {tag}
             <button type="button" onClick={() => toggle(tag)} className="hover:text-red-500"><X className="h-3 w-3" /></button>
           </span>

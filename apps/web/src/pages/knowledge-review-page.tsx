@@ -57,7 +57,7 @@ export default function KnowledgeReviewPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <ClipboardCheck className="h-6 w-6 text-teal-600" />
+        <ClipboardCheck className="h-6 w-6 text-blue-600" />
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Duyệt kiến thức</h1>
       </div>
 

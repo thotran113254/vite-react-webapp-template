@@ -42,7 +42,7 @@ export function HotelGallery({ images, altPrefix = "Hotel" }: HotelGalleryProps)
               className={cn(
                 "h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all",
                 selectedIndex === idx
-                  ? "border-teal-500 opacity-100"
+                  ? "border-blue-500 opacity-100"
                   : "border-transparent opacity-60 hover:opacity-90"
               )}
               aria-label={`View photo ${idx + 1}`}

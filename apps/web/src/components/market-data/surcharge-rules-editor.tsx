@@ -78,7 +78,7 @@ export function SurchargeRulesEditor({
           </button>
         </div>
       ))}
-      <Button type="button" variant="ghost" size="sm" className="text-xs text-teal-600 h-7" onClick={addRule}>
+      <Button type="button" variant="ghost" size="sm" className="text-xs text-blue-600 h-7" onClick={addRule}>
         <Plus className="mr-1 h-3 w-3" /> Thêm quy tắc phụ thu
       </Button>
     </div>

@@ -121,7 +121,7 @@ export function ImageManager({ images, onChange, disabled = false, maxImages = 1
       {/* Drop zone + image grid */}
       <div
         className={`rounded-lg border-2 border-dashed transition-colors p-2 ${
-          dragOver ? "border-teal-400 bg-teal-50/50 dark:bg-teal-900/10" : "border-[var(--border)]"
+          dragOver ? "border-blue-400 bg-blue-50/50 dark:bg-blue-900/10" : "border-[var(--border)]"
         } ${canUpload ? "cursor-pointer" : ""}`}
         onDragOver={(e) => { e.preventDefault(); if (canUpload) setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
@@ -142,7 +142,7 @@ export function ImageManager({ images, onChange, disabled = false, maxImages = 1
                 key={`${url}-${i}`}
                 className={`relative group aspect-square rounded-lg overflow-hidden bg-[var(--muted)]/20 ${
                   !disabled ? "cursor-grab active:cursor-grabbing" : ""
-                } ${dragIdx === i ? "opacity-50 ring-2 ring-teal-400" : ""}`}
+                } ${dragIdx === i ? "opacity-50 ring-2 ring-blue-400" : ""}`}
                 draggable={!disabled}
                 onDragStart={() => setDragIdx(i)}
                 onDragOver={(e) => { e.preventDefault(); }}
@@ -192,7 +192,7 @@ export function ImageManager({ images, onChange, disabled = false, maxImages = 1
                 ) : (
                   <>
                     <div className="h-1 w-3/4 rounded-full bg-[var(--muted)] overflow-hidden">
-                      <div className="h-full bg-teal-500 transition-all duration-300 rounded-full" style={{ width: `${u.progress}%` }} />
+                      <div className="h-full bg-blue-500 transition-all duration-300 rounded-full" style={{ width: `${u.progress}%` }} />
                     </div>
                     <p className="text-[10px] text-[var(--muted-foreground)] mt-1">{u.progress}%</p>
                   </>
@@ -206,7 +206,7 @@ export function ImageManager({ images, onChange, disabled = false, maxImages = 1
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="aspect-square rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--muted-foreground)] hover:border-teal-400 hover:text-teal-600 transition-colors"
+                className="aspect-square rounded-lg border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--muted-foreground)] hover:border-blue-400 hover:text-blue-600 transition-colors"
               >
                 <Upload className="h-5 w-5" />
                 <span className="text-[10px] mt-1">Thêm ảnh</span>

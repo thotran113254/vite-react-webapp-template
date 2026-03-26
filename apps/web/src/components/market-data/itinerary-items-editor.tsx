@@ -126,9 +126,9 @@ export function ItineraryItemsEditor({ templateId, isAdmin }: Props) {
       {days.map((day) => (
         <div key={day} className="rounded-lg border border-[var(--border)] bg-[var(--card)]/50">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-2">
-            <h4 className="text-sm font-semibold text-teal-700">NGÀY {day}</h4>
+            <h4 className="text-sm font-semibold text-blue-700">NGÀY {day}</h4>
             {isAdmin && (
-              <Button size="sm" variant="ghost" className="h-7 text-xs text-teal-600" onClick={() => openAdd(day)}>
+              <Button size="sm" variant="ghost" className="h-7 text-xs text-blue-600" onClick={() => openAdd(day)}>
                 <Plus className="mr-1 h-3 w-3" /> Thêm
               </Button>
             )}
@@ -138,7 +138,7 @@ export function ItineraryItemsEditor({ templateId, isAdmin }: Props) {
               <div key={item.id} className="flex items-start gap-3 px-4 py-2.5 group">
                 <div className="shrink-0 w-20 pt-0.5">
                   {item.timeStart ? (
-                    <span className="flex items-center gap-1 text-xs font-medium text-teal-700">
+                    <span className="flex items-center gap-1 text-xs font-medium text-blue-700">
                       <Clock className="h-3 w-3" />
                       {item.timeStart}{item.timeEnd ? `–${item.timeEnd}` : ""}
                     </span>
@@ -171,7 +171,7 @@ export function ItineraryItemsEditor({ templateId, isAdmin }: Props) {
       ))}
 
       {isAdmin && (
-        <Button size="sm" variant="outline" className="text-teal-600 border-teal-300" onClick={() => openAdd()}>
+        <Button size="sm" variant="outline" className="text-blue-600 border-blue-300" onClick={() => openAdd()}>
           <Plus className="mr-1 h-3 w-3" /> Thêm hoạt động
         </Button>
       )}
@@ -226,7 +226,7 @@ export function ItineraryItemsEditor({ templateId, isAdmin }: Props) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700" disabled={saveMutation.isPending || !form.activity}
+            <Button className="bg-blue-600 hover:bg-blue-700" disabled={saveMutation.isPending || !form.activity}
               onClick={() => saveMutation.mutate()}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>

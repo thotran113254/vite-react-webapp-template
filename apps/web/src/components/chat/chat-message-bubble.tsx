@@ -65,7 +65,7 @@ export function ChatMessageBubble({ role, content, createdAt, images, hadImages 
         <div
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-            isAssistant ? "bg-teal-600 text-white" : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300",
+            isAssistant ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300",
           )}
         >
           {isAssistant ? <Bot size={16} /> : <User size={16} />}
@@ -110,7 +110,7 @@ export function ChatMessageBubble({ role, content, createdAt, images, hadImages 
 
           {/* Text bubble — skip if image-only, show placeholder for empty assistant response */}
           {isEmpty && isAssistant ? (
-            <div className="rounded-2xl rounded-tl-sm bg-teal-50 px-4 py-2.5 text-sm italic text-gray-400 dark:bg-teal-900/40 dark:text-gray-500">
+            <div className="rounded-2xl rounded-tl-sm bg-blue-50 px-4 py-2.5 text-sm italic text-gray-400 dark:bg-blue-900/40 dark:text-gray-500">
               (AI không phản hồi được — có thể do ảnh không được gửi đúng cách)
             </div>
           ) : !isImageOnly && !isEmpty ? (
@@ -118,7 +118,7 @@ export function ChatMessageBubble({ role, content, createdAt, images, hadImages 
               className={cn(
                 "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                 isAssistant
-                  ? "rounded-tl-sm bg-teal-50 text-gray-800 dark:bg-teal-900/40 dark:text-gray-200"
+                  ? "rounded-tl-sm bg-blue-50 text-gray-800 dark:bg-blue-900/40 dark:text-gray-200"
                   : "rounded-tr-sm bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
               )}
             >

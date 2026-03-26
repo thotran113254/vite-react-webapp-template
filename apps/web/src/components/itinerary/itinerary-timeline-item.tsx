@@ -7,7 +7,7 @@ const TYPE_CONFIG: Record<
   { icon: React.ElementType; label: string; color: string }
 > = {
   flight:     { icon: Plane,     label: "KHỞI HÀNH",   color: "text-blue-600 bg-blue-50 border-blue-200" },
-  hotel:      { icon: Hotel,     label: "NHẬN PHÒNG",   color: "text-teal-600 bg-teal-50 border-teal-200" },
+  hotel:      { icon: Hotel,     label: "NHẬN PHÒNG",   color: "text-blue-600 bg-blue-50 border-blue-200" },
   restaurant: { icon: Utensils,  label: "ĐẶT BÀN",     color: "text-orange-600 bg-orange-50 border-orange-200" },
   tour:       { icon: Map,       label: "THAM QUAN",    color: "text-purple-600 bg-purple-50 border-purple-200" },
   transport:  { icon: Bus,       label: "DI CHUYỂN",    color: "text-indigo-600 bg-indigo-50 border-indigo-200" },
@@ -85,7 +85,7 @@ export function ItineraryTimelineItem({ item, isLast }: Props) {
             {item.confirmationCode && (
               <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
                 Mã xác nhận:{" "}
-                <span className="font-mono font-semibold text-teal-700">{item.confirmationCode}</span>
+                <span className="font-mono font-semibold text-blue-700">{item.confirmationCode}</span>
               </p>
             )}
             {item.notes && (
@@ -100,7 +100,7 @@ export function ItineraryTimelineItem({ item, isLast }: Props) {
                     href={website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:underline"
+                    className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
                   >
                     <ExternalLink className="h-3.5 w-3.5" /> Xem chi tiết
                   </a>
@@ -110,7 +110,7 @@ export function ItineraryTimelineItem({ item, isLast }: Props) {
                     href={mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:underline"
+                    className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
                   >
                     <MapPin className="h-3.5 w-3.5" /> Chỉ đường
                   </a>
@@ -118,7 +118,7 @@ export function ItineraryTimelineItem({ item, isLast }: Props) {
                 {phone && (
                   <a
                     href={`tel:${phone}`}
-                    className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:underline"
+                    className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
                   >
                     <Phone className="h-3.5 w-3.5" /> Gọi điện
                   </a>

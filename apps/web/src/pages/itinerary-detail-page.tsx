@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<TripStatus, string> = {
 
 const STATUS_COLOR: Record<TripStatus, string> = {
   draft:     "bg-gray-100 text-gray-700 border-gray-300",
-  active:    "bg-teal-50 text-teal-700 border-teal-300",
+  active:    "bg-blue-50 text-blue-700 border-blue-300",
   completed: "bg-blue-50 text-blue-700 border-blue-300",
   cancelled: "bg-red-50 text-red-700 border-red-300",
 };
@@ -81,7 +81,7 @@ export default function ItineraryDetailPage() {
     return (
       <div className="py-20 text-center">
         <p className="font-medium text-[var(--foreground)]">Không tìm thấy lịch trình.</p>
-        <Link to="/dashboard" className="mt-2 inline-block text-sm text-teal-600 hover:underline">
+        <Link to="/dashboard" className="mt-2 inline-block text-sm text-blue-600 hover:underline">
           Về trang chủ
         </Link>
       </div>
@@ -97,7 +97,7 @@ export default function ItineraryDetailPage() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-[var(--muted-foreground)]">
-        <Link to="/dashboard" className="hover:text-teal-600">Trang chủ</Link>
+        <Link to="/dashboard" className="hover:text-blue-600">Trang chủ</Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="font-medium text-[var(--foreground)] line-clamp-1">{trip.title}</span>
       </nav>
@@ -183,7 +183,7 @@ export default function ItineraryDetailPage() {
       {/* Floating Ask Assistant button */}
       <Link
         to="/chat"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-teal-600 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-teal-700 transition-colors"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 transition-colors"
       >
         <MessageCircle className="h-4 w-4" />
         Hỏi trợ lý

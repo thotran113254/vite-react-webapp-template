@@ -20,7 +20,7 @@ function StarRating({ rating }: { rating: number }) {
           key={i}
           className={cn(
             "h-3.5 w-3.5",
-            i < rating ? "fill-teal-500 text-teal-500" : "fill-none text-gray-300"
+            i < rating ? "fill-blue-500 text-blue-500" : "fill-none text-gray-300"
           )}
         />
       ))}
@@ -61,7 +61,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
         <p className="mt-1 line-clamp-1 text-xs text-[var(--muted-foreground)]">{hotel.location}</p>
 
         {/* Price */}
-        <p className="mt-2 text-lg font-bold text-teal-600">
+        <p className="mt-2 text-lg font-bold text-blue-600">
           ${hotel.priceFrom ?? 0}
           <span className="ml-1 text-sm font-normal text-[var(--muted-foreground)]">/ đêm</span>
         </p>
@@ -81,7 +81,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
         <Link to={`/hotels/${hotel.slug}`} className="mt-3 block">
           <Button
             size="sm"
-            className="w-full bg-teal-600 text-white hover:bg-teal-700"
+            className="w-full bg-blue-600 text-white hover:bg-blue-700"
           >
             View Details
           </Button>

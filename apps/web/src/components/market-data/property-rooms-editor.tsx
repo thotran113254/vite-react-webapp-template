@@ -74,7 +74,7 @@ export function PropertyRoomsEditor({ propertyId, isAdmin }: Props) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Phòng & Bảng giá</h3>
-        {isAdmin && <Button size="sm" className="bg-teal-600 hover:bg-teal-700 h-7 text-xs" onClick={openAdd}><Plus className="mr-1 h-3 w-3" /> Thêm phòng</Button>}
+        {isAdmin && <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs" onClick={openAdd}><Plus className="mr-1 h-3 w-3" /> Thêm phòng</Button>}
       </div>
 
       {rooms.length === 0 && <p className="text-sm text-[var(--muted-foreground)]">Chưa có phòng nào</p>}
@@ -143,7 +143,7 @@ export function PropertyRoomsEditor({ propertyId, isAdmin }: Props) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRoomDialog(false)}>Hủy</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700" disabled={saveMutation.isPending || !form.roomType} onClick={() => saveMutation.mutate()}>
+            <Button className="bg-blue-600 hover:bg-blue-700" disabled={saveMutation.isPending || !form.roomType} onClick={() => saveMutation.mutate()}>
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>

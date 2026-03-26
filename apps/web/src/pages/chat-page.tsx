@@ -219,15 +219,15 @@ export default function ChatPage() {
           >
             {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
           </button>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600">
             <Bot size={16} className="text-white" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-[var(--foreground)]">
               {activeSession?.title ?? "Trợ lý AI"}
             </p>
-            <span className="inline-flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+            <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
               Online
             </span>
           </div>
@@ -301,13 +301,13 @@ export default function ChatPage() {
               </div>
             )}
 
-            {/* Default thinking indicator — teal */}
+            {/* Default thinking indicator — blue */}
             {isStreaming && !streamingText && toolCalls.length === 0 && (
               <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
                 <div className="flex gap-1">
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:0ms]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:150ms]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-teal-400 [animation-delay:300ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-blue-400 [animation-delay:0ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-blue-400 [animation-delay:150ms]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-blue-400 [animation-delay:300ms]" />
                 </div>
                 AI đang xử lý...
               </div>

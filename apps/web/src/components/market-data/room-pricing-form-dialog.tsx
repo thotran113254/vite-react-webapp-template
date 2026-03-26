@@ -144,7 +144,7 @@ export function RoomPricingFormDialog({
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Hủy</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={isSaving || !hasAnyPrice}
             onClick={onSave}
           >

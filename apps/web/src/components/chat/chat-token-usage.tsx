@@ -43,7 +43,7 @@ function ModelTokenLine({ m }: { m: ModelUsageInfo }) {
           <span>Think {t.thinkingTokens.toLocaleString()}</span>
         </>
       )}
-      <span className="ml-auto text-teal-600 dark:text-teal-400">{fmt(m.cost.totalCost)}</span>
+      <span className="ml-auto text-blue-600 dark:text-blue-400">{fmt(m.cost.totalCost)}</span>
     </div>
   );
 }
@@ -95,7 +95,7 @@ export function ChatTokenUsage({ usage }: ChatTokenUsageProps) {
       <div className="flex items-center gap-1 border-t border-gray-200 pt-1 dark:border-gray-700">
         <Coins size={11} className="shrink-0 opacity-60" />
         <span>Tổng chi phí</span>
-        <span className="ml-auto font-semibold text-teal-600 dark:text-teal-400">{fmt(bd.totalCost)}</span>
+        <span className="ml-auto font-semibold text-blue-600 dark:text-blue-400">{fmt(bd.totalCost)}</span>
       </div>
     </div>
   );

@@ -109,7 +109,7 @@ export function ExperienceFormDialog({ open, onOpenChange, marketId, editItem, o
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-blue-600 hover:bg-blue-700"
             disabled={saveMutation.isPending || !form.activityName.trim()}
             onClick={() => saveMutation.mutate()}
           >

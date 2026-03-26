@@ -95,7 +95,7 @@ export default function MarketDetailPage() {
               className={cn(
                 "px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap border-b-2 -mb-px",
                 activeTab === tab.id
-                  ? "border-teal-600 text-teal-700 dark:text-teal-400"
+                  ? "border-blue-600 text-blue-700 dark:text-blue-400"
                   : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               )}
             >

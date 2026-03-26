@@ -48,7 +48,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-teal-600 underline hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300"
+            className="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             {children}
           </a>
@@ -56,7 +56,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
         // Blockquote
         blockquote: ({ children }) => (
-          <blockquote className="mb-2 border-l-3 border-teal-400 pl-3 italic text-gray-600 last:mb-0 dark:text-gray-400">
+          <blockquote className="mb-2 border-l-3 border-blue-400 pl-3 italic text-gray-600 last:mb-0 dark:text-gray-400">
             {children}
           </blockquote>
         ),

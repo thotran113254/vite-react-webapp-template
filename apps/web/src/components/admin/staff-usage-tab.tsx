@@ -94,7 +94,7 @@ export function StaffUsageTab() {
             {data.map((entry, i) => {
               const isTop = i === 0;
               return (
-                <TR key={entry.userId} className={isTop ? "bg-teal-50/40 dark:bg-teal-900/10" : undefined}>
+                <TR key={entry.userId} className={isTop ? "bg-blue-50/40 dark:bg-blue-900/10" : undefined}>
                   <TD className="text-[var(--muted-foreground)]">{i + 1}</TD>
                   <TD>
                     <p className="font-medium">{entry.userName}</p>
@@ -104,7 +104,7 @@ export function StaffUsageTab() {
                   <TD className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <div
-                        className="h-1.5 rounded-full bg-teal-500"
+                        className="h-1.5 rounded-full bg-blue-500"
                         style={{ width: `${Math.round((entry.totalMessages / maxMessages) * 60)}px` }}
                       />
                       <span>{entry.totalMessages}</span>

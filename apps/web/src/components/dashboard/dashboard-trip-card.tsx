@@ -14,7 +14,7 @@ const STATUS_LABELS: Record<TripStatus, string> = {
 
 const STATUS_COLORS: Record<TripStatus, string> = {
   draft: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
-  active: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400",
+  active: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
   completed: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
   cancelled: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400",
 };
@@ -44,7 +44,7 @@ export function DashboardTripCard({ trip }: DashboardTripCardProps) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm transition hover:shadow-md">
       {/* Cover image */}
-      <div className="relative h-32 bg-gradient-to-br from-teal-400 to-teal-600">
+      <div className="relative h-32 bg-gradient-to-br from-blue-400 to-blue-600">
         {trip.coverImage ? (
           <img
             src={trip.coverImage}
@@ -66,7 +66,7 @@ export function DashboardTripCard({ trip }: DashboardTripCardProps) {
 
       {/* Card body */}
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-1 font-semibold text-[var(--foreground)] group-hover:text-teal-600">
+        <h3 className="line-clamp-1 font-semibold text-[var(--foreground)] group-hover:text-blue-600">
           {trip.title}
         </h3>
 
